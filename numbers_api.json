@@ -1,0 +1,8 @@
+/* [FILE: numbers_api.json] */
+{
+  "premium_lines": [
+    {"country": "UK", "code": "+44", "status": "No-Ban-Elite"},
+    {"country": "Poland", "code": "+48", "status": "Secure-Proxy"},
+    {"country": "Latvia", "code": "+371", "status": "Stealth-Sim"}
+  ]
+}
