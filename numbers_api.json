@@ -1,8 +1,16 @@
-/* [FILE: numbers_api.json] */
 {
-  "premium_lines": [
-    {"country": "UK", "code": "+44", "status": "No-Ban-Elite"},
-    {"country": "Poland", "code": "+48", "status": "Secure-Proxy"},
-    {"country": "Latvia", "code": "+371", "status": "Stealth-Sim"}
-  ]
+  "gateways": {
+    "uk_elite": {"prefix": "+44", "node": "VIP-772", "status": "Secure"},
+    "pl_secure": {"prefix": "+48", "node": "NODE-904", "status": "Active"},
+    "us_ghost": {"prefix": "+1", "node": "GHOST-112", "status": "No-Limit"}
+  },
+  "security": {
+    "encryption_level": "AES-256",
+    "stealth_mode": true,
+    "otp_listening": "enabled"
+  },
+  "pubg_api": {
+    "delivery": "instant",
+    "verification": "bypassed"
+  }
 }
